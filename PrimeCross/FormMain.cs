@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace PrimeCross;
 
 public partial class FormMain : Form
@@ -59,9 +57,7 @@ public partial class FormMain : Form
     const int Black = 0x000000;
     const int White = 0xffffff;
     const int Red = 0x0000ff;
-    const int Green = 0x00ff00;
-    const int Blue = 0xff0000;
-    int map_length = 0;
+    int length = 0;
     (int, long, bool)[,]? primes = null;
     (int, long, bool)[,] BuildPrimesMap(int length)
     {
@@ -114,19 +110,12 @@ public partial class FormMain : Form
                 }
             }
         }
-        for (int y = 0; y < length; y++)
-        {
-            for (int x = 0; x < length; x++)
-            {
-                map[x, y] = map[x, y].Item1 == Red ? (Black, map[x, y].Item2, map[x, y].Item3) : map[x, y];
-            }
-        }
         return map;
     }
     private void GenerateButton_Click(object sender, EventArgs e)
     {
-        this.map_length = Math.Max(PrimesPictureBox.Width, PrimesPictureBox.Height);
-        this.primes = BuildPrimesMap(this.map_length);
+        this.length = Math.Max(PrimesPictureBox.Width, PrimesPictureBox.Height);
+        this.primes = BuildPrimesMap(this.length);
 
         var bitmap = new Bitmap(PrimesPictureBox.Width, PrimesPictureBox.Height);
 
@@ -134,10 +123,10 @@ public partial class FormMain : Form
         {
             for (int x = 0; x < PrimesPictureBox.Width; x++)
             {
-                var px = x + ((this.map_length - PrimesPictureBox.Width) >> 1);
-                var py = y + ((this.map_length - PrimesPictureBox.Height) >> 1);
+                var px = x + ((this.length - PrimesPictureBox.Width) >> 1);
+                var py = y + ((this.length - PrimesPictureBox.Height) >> 1);
                 var c = this.primes[px, py];
-                bitmap.SetPixel(x, y, c.Item1 == 0 ? Color.Black : Color.White);
+                bitmap.SetPixel(x, y, c.Item3 ? Color.White : Color.Black);
             }
         }
 
@@ -166,13 +155,13 @@ public partial class FormMain : Form
             if (x >= 0 && x < PrimesPictureBox.Image.Width
                 && y >= 0 && y < PrimesPictureBox.Image.Height)
             {
-                Point cp = new(PrimesPictureBox.Image.Width >> 1, PrimesPictureBox.Image.Height >> 1);
-                Point dp = new(x - cp.X, cp.Y - y);
+                PointF cp = new(PrimesPictureBox.Image.Width >> 1, PrimesPictureBox.Image.Height >> 1);
+                PointF dp = new(x - cp.X, cp.Y - y);
 
-                Point mp = new(dp.X + (this.map_length >> 1), dp.Y + (this.map_length >> 1));
-
-                long n = this.primes![mp.X, mp.Y].Item2;
-                bool b = this.primes[mp.X, mp.Y].Item3;
+                PointF mp = new(dp.X + (this.length >> 1), dp.Y + (this.length >> 1));
+                var p = this.primes![(int)mp.X, (int)mp.Y];
+                long n = p.Item2;
+                bool b = p.Item3;
                 var t = Math.Atan2(dp.Y, dp.X) / Math.PI * 180.0;
                 this.InfoLabel.Text = $"n={n}, x={dp.X}, y={dp.Y}, d={t:N4}°: {(b ? "Prime" : "Composite")}";
             }
