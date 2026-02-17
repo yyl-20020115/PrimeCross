@@ -30,6 +30,7 @@
         {
             PrimesPictureBox = new PictureBox();
             GenerateButton = new Button();
+            InfoLabel = new Label();
             ((System.ComponentModel.ISupportInitialize)PrimesPictureBox).BeginInit();
             SuspendLayout();
             // 
@@ -41,6 +42,7 @@
             PrimesPictureBox.Size = new Size(776, 381);
             PrimesPictureBox.TabIndex = 0;
             PrimesPictureBox.TabStop = false;
+            PrimesPictureBox.MouseMove += PrimesPictureBox_MouseMove;
             // 
             // GenerateButton
             // 
@@ -53,11 +55,21 @@
             GenerateButton.UseVisualStyleBackColor = true;
             GenerateButton.Click += GenerateButton_Click;
             // 
+            // InfoLabel
+            // 
+            InfoLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            InfoLabel.AutoSize = true;
+            InfoLabel.Location = new Point(13, 412);
+            InfoLabel.Name = "InfoLabel";
+            InfoLabel.Size = new Size(0, 24);
+            InfoLabel.TabIndex = 2;
+            // 
             // FormMain
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 449);
+            Controls.Add(InfoLabel);
             Controls.Add(GenerateButton);
             Controls.Add(PrimesPictureBox);
             Name = "FormMain";
@@ -66,11 +78,13 @@
             Resize += FormMain_Resize;
             ((System.ComponentModel.ISupportInitialize)PrimesPictureBox).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
 
         private PictureBox PrimesPictureBox;
         private Button GenerateButton;
+        private Label InfoLabel;
     }
 }
