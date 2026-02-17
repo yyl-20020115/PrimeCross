@@ -62,6 +62,7 @@
             Controls.Add(PrimesPictureBox);
             Name = "FormMain";
             Text = "Primes";
+            Load += FormMain_Load;
             Resize += FormMain_Resize;
             ((System.ComponentModel.ISupportInitialize)PrimesPictureBox).EndInit();
             ResumeLayout(false);
