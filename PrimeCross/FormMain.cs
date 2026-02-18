@@ -355,6 +355,10 @@ public partial class FormMain : Form
         this.PrimesPictureBox.Image?.Dispose();
         this.PrimesPictureBox.Image = bitmap;
     }
+    private void Reset()
+    {
+        this.GeneratePrimesMap(this.flip = false);
+    }
     private void Flip()
     {
         this.GeneratePrimesMap(this.flip = !this.flip, this.inverse);
@@ -419,9 +423,9 @@ public partial class FormMain : Form
         }
     }
 
-    void ResetButton_Click(object sender, EventArgs e)
+    private void ResetButton_Click(object sender, EventArgs e)
     {
-        this.GeneratePrimesMap(this.flip = false);
+        this.Reset(); 
     }
 
     private void RotateButton_Click(object sender, EventArgs e)
