@@ -33,6 +33,7 @@
             InfoLabel = new Label();
             ResetButton = new Button();
             FlipButton = new Button();
+            InverseButton = new Button();
             ((System.ComponentModel.ISupportInitialize)PrimesPictureBox).BeginInit();
             SuspendLayout();
             // 
@@ -49,9 +50,9 @@
             // GenerateButton
             // 
             GenerateButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            GenerateButton.Location = new Point(620, 743);
+            GenerateButton.Location = new Point(634, 743);
             GenerateButton.Name = "GenerateButton";
-            GenerateButton.Size = new Size(112, 34);
+            GenerateButton.Size = new Size(96, 34);
             GenerateButton.TabIndex = 1;
             GenerateButton.Text = "&Generate";
             GenerateButton.UseVisualStyleBackColor = true;
@@ -69,9 +70,9 @@
             // ResetButton
             // 
             ResetButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            ResetButton.Location = new Point(502, 743);
+            ResetButton.Location = new Point(555, 743);
             ResetButton.Name = "ResetButton";
-            ResetButton.Size = new Size(112, 34);
+            ResetButton.Size = new Size(76, 34);
             ResetButton.TabIndex = 3;
             ResetButton.Text = "&Reset";
             ResetButton.UseVisualStyleBackColor = true;
@@ -80,19 +81,31 @@
             // FlipButton
             // 
             FlipButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            FlipButton.Location = new Point(384, 743);
+            FlipButton.Location = new Point(476, 743);
             FlipButton.Name = "FlipButton";
-            FlipButton.Size = new Size(112, 34);
+            FlipButton.Size = new Size(76, 34);
             FlipButton.TabIndex = 4;
             FlipButton.Text = "&Flip";
             FlipButton.UseVisualStyleBackColor = true;
             FlipButton.Click += RotateButton_Click;
+            // 
+            // InverseButton
+            // 
+            InverseButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            InverseButton.Location = new Point(389, 743);
+            InverseButton.Name = "InverseButton";
+            InverseButton.Size = new Size(84, 34);
+            InverseButton.TabIndex = 5;
+            InverseButton.Text = "&Inverse";
+            InverseButton.UseVisualStyleBackColor = true;
+            InverseButton.Click += InverseButton_Click;
             // 
             // FormMain
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(744, 788);
+            Controls.Add(InverseButton);
             Controls.Add(FlipButton);
             Controls.Add(ResetButton);
             Controls.Add(InfoLabel);
@@ -114,5 +127,6 @@
         private Label InfoLabel;
         private Button ResetButton;
         private Button FlipButton;
+        private Button InverseButton;
     }
 }

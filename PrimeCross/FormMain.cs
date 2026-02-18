@@ -260,6 +260,7 @@ public partial class FormMain : Form
     const int White = 0xffffff;
     const int Red = 0x0000ff;
     bool flip = false;
+    bool inverse = false;
     int length = 0;
     (int, long, bool)[,]? primes = null;
     (int, long, bool)[,] BuildPrimesMap(int length)
@@ -331,7 +332,7 @@ public partial class FormMain : Form
             return new Point(x, y);
         }
     }
-    private void GeneratePrimesMap(bool flip = false)
+    private void GeneratePrimesMap(bool flip = false, bool inverse = false)
     {
         this.length = Math.Max(PrimesPictureBox.Width, PrimesPictureBox.Height);
         this.primes = BuildPrimesMap(this.length);
@@ -346,7 +347,8 @@ public partial class FormMain : Form
                 var py = y + ((this.length - PrimesPictureBox.Height) >> 1);
                 var c = this.primes[px, py];
                 var fp = FlipProject(size, new Point(x, y), flip);
-                bitmap.SetPixel(fp.X, fp.Y, c.Item3 ? Color.White : Color.Black);
+                bitmap.SetPixel(fp.X, fp.Y,
+                    ((!inverse) ? c.Item3 : !c.Item3) ? Color.White : Color.Black);
             }
         }
 
@@ -355,7 +357,11 @@ public partial class FormMain : Form
     }
     private void Flip()
     {
-        this.GeneratePrimesMap(this.flip = !this.flip);
+        this.GeneratePrimesMap(this.flip = !this.flip, this.inverse);
+    }
+    private void Inverse()
+    {
+        this.GeneratePrimesMap(this.flip, this.inverse = !this.inverse);
     }
     private void GenerateButton_Click(object sender, EventArgs e)
     {
@@ -395,24 +401,25 @@ public partial class FormMain : Form
                 PointF dp = new(x - cp.X, cp.Y - y);
 
                 PointF mp = new(dp.X + (this.length >> 1) - 1, dp.Y + (this.length >> 1) - 1);
-                try
-                {
-                    var p = this.primes![(int)mp.X, (int)mp.Y];
-                    long n = p.Item2;
-                    bool b = p.Item3;
-                    var t = Math.Atan2(dp.Y, dp.X) / Math.PI * 180.0;
-                    this.InfoLabel.Text = $"n={n}, x={dp.X}, y={dp.Y}, d={t:N4}°: {(b ? "Prime" : "Composite")}";
+                if (mp.X > this.length - 1)
+                    mp.X = this.length - 1;
+                if (mp.Y > this.length - 1)
+                    mp.Y = this.length - 1;
+                if(mp.X<0)
+                    mp.X = 0;
+                if (mp.Y<0)
+                    mp.Y = 0;
 
-                }
-                catch (Exception ex)
-                {
-                    this.InfoLabel.Text = $"Error: {ex.Message}";
-                }
+                var p = this.primes![(int)mp.X, (int)mp.Y];
+                long n = p.Item2;
+                bool b = p.Item3;
+                var t = Math.Atan2(dp.Y, dp.X) / Math.PI * 180.0;
+                this.InfoLabel.Text = $"n={n}, x={dp.X}, y={dp.Y}, d={t:N4}°: {(b ? "Prime" : "Composite")}";
             }
         }
     }
 
-    private void ResetButton_Click(object sender, EventArgs e)
+    void ResetButton_Click(object sender, EventArgs e)
     {
         this.GeneratePrimesMap(this.flip = false);
     }
@@ -420,5 +427,10 @@ public partial class FormMain : Form
     private void RotateButton_Click(object sender, EventArgs e)
     {
         this.Flip();
+    }
+
+    private void InverseButton_Click(object sender, EventArgs e)
+    {
+        this.Inverse();
     }
 }
