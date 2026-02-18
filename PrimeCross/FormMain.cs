@@ -314,65 +314,42 @@ public partial class FormMain : Form
         }
         return map;
     }
-    private void GeneratePrimesMap()
+
+    Point Project(Size size, Point p, bool flip = false)
+    {
+        var cp = new Point(size.Width >> 1, size.Height >> 1);
+        return !flip
+            ? p
+            : new Point(
+            p.X < cp.X ? cp.X - p.X : size.Width + (cp.X - p.X) - 1,
+            p.Y < cp.Y ? cp.Y - p.Y : size.Height + (cp.Y - p.Y) - 1
+            );
+    }
+    private void GeneratePrimesMap(bool flip = false)
     {
         this.length = Math.Max(PrimesPictureBox.Width, PrimesPictureBox.Height);
         this.primes = BuildPrimesMap(this.length);
 
         var bitmap = new Bitmap(PrimesPictureBox.Width, PrimesPictureBox.Height);
-
-        for (int y = 0; y < PrimesPictureBox.Height; y++)
+        Size size = new(PrimesPictureBox.Width, PrimesPictureBox.Height);
+        for (int y = 0; y < size.Height; y++)
         {
-            for (int x = 0; x < PrimesPictureBox.Width; x++)
+            for (int x = 0; x < size.Width; x++)
             {
                 var px = x + ((this.length - PrimesPictureBox.Width) >> 1);
                 var py = y + ((this.length - PrimesPictureBox.Height) >> 1);
                 var c = this.primes[px, py];
-                bitmap.SetPixel(x, y, c.Item3 ? Color.White : Color.Black);
+                var fp = Project(size, new Point(x, y), flip);
+                bitmap.SetPixel(fp.X, fp.Y, c.Item3 ? Color.White : Color.Black);
             }
         }
 
         this.PrimesPictureBox.Image?.Dispose();
         this.PrimesPictureBox.Image = bitmap;
     }
-    private void Rotate()
+    private void Flip()
     {
-        if (this.PrimesPictureBox.Image is Bitmap bitmap)
-        {
-            var hw = bitmap.Width >> 1;
-            var hh = bitmap.Height >> 1;
-
-            var target = new Bitmap(bitmap);
-            using (var g = Graphics.FromImage(target))
-            {
-                //g.Clear(Color.Black);
-                // 将原始Bitmap的四个象限分别绘制到新Bitmap的对应位置
-                //1 2
-                //3 4
-                // 绘制第一象限:1->4
-                g.DrawImage(bitmap,
-                    new Rectangle(hw, hh, hw, hh), // 目标矩形（新Bitmap上的位置和大小）
-                    new Rectangle(0, 0, hw, hh), // 源矩形（原始Bitmap上的位置和大小）
-                    GraphicsUnit.Pixel);
-                // 绘制第二象限:2->3
-                g.DrawImage(bitmap,
-                    new Rectangle(0, hh, hw - 1, hh - 1), // 目标矩形（新Bitmap上的位置和大小）
-                    new Rectangle(hw, 0, hw - 1, hh - 1), // 源矩形（原始Bitmap上的位置和大小）
-                    GraphicsUnit.Pixel);
-                // 绘制第三象限:3->2
-                g.DrawImage(bitmap,
-                    new Rectangle(hw, 0, hw - 1, hh - 1), // 目标矩形（新Bitmap上的位置和大小）
-                    new Rectangle(0, hh, hw - 1, hh - 1), // 源矩形（原始Bitmap上的位置和大小）
-                    GraphicsUnit.Pixel);
-                // 绘制第四象限:4->1
-                g.DrawImage(bitmap,
-                    new Rectangle(0, 0, hw - 1, hh - 1), // 目标矩形（新Bitmap上的位置和大小）
-                    new Rectangle(hw, hh, hw - 1, hh - 1), // 源矩形（原始Bitmap上的位置和大小）
-                    GraphicsUnit.Pixel);
-            }
-            this.PrimesPictureBox.Image?.Dispose();
-            this.PrimesPictureBox.Image = target;
-        }
+        this.GeneratePrimesMap(true);
     }
     private void GenerateButton_Click(object sender, EventArgs e)
     {
@@ -428,6 +405,6 @@ public partial class FormMain : Form
 
     private void RotateButton_Click(object sender, EventArgs e)
     {
-        this.Rotate();
+        this.Flip();
     }
 }

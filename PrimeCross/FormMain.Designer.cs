@@ -32,7 +32,7 @@
             GenerateButton = new Button();
             InfoLabel = new Label();
             ResetButton = new Button();
-            RotateButton = new Button();
+            FlipButton = new Button();
             ((System.ComponentModel.ISupportInitialize)PrimesPictureBox).BeginInit();
             SuspendLayout();
             // 
@@ -77,23 +77,23 @@
             ResetButton.UseVisualStyleBackColor = true;
             ResetButton.Click += ResetButton_Click;
             // 
-            // RotateButton
+            // FlipButton
             // 
-            RotateButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            RotateButton.Location = new Point(440, 404);
-            RotateButton.Name = "RotateButton";
-            RotateButton.Size = new Size(112, 34);
-            RotateButton.TabIndex = 4;
-            RotateButton.Text = "R&otate";
-            RotateButton.UseVisualStyleBackColor = true;
-            RotateButton.Click += RotateButton_Click;
+            FlipButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            FlipButton.Location = new Point(440, 404);
+            FlipButton.Name = "FlipButton";
+            FlipButton.Size = new Size(112, 34);
+            FlipButton.TabIndex = 4;
+            FlipButton.Text = "&Flip";
+            FlipButton.UseVisualStyleBackColor = true;
+            FlipButton.Click += RotateButton_Click;
             // 
             // FormMain
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 449);
-            Controls.Add(RotateButton);
+            Controls.Add(FlipButton);
             Controls.Add(ResetButton);
             Controls.Add(InfoLabel);
             Controls.Add(GenerateButton);
@@ -113,6 +113,6 @@
         private Button GenerateButton;
         private Label InfoLabel;
         private Button ResetButton;
-        private Button RotateButton;
+        private Button FlipButton;
     }
 }
