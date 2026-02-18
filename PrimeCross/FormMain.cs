@@ -5,25 +5,25 @@ namespace PrimeCross;
 
 public partial class FormMain : Form
 {
-    public static Bitmap GetBitmap(int[][] pixelArray, Bitmap bitmap)
+    public static Bitmap GetBitmap(int[][] pixelArray)
     {
+        var height = pixelArray.GetLength(0);
+        var width = pixelArray[0].GetLength(0);
         // 创建一个新的Bitmap对象来存储修改后的图像
-        var newBitmap = new Bitmap(bitmap.Width, bitmap.Height);
-        using var g = Graphics.FromImage(newBitmap);
-        g.Clear(Color.Blue);
+        var bitmap = new Bitmap(width, height);
+        using var g = Graphics.FromImage(bitmap);
         // 遍历像素数组并设置新Bitmap的像素值
-        for (int y = 0; y < bitmap.Height; y++)
+        for (int y = 0; y < height; y++)
         {
-            for (int x = 0; x < bitmap.Width; x++)
+            for (int x = 0; x < width; x++)
             {
                 int pixelValue = pixelArray[y][x];
                 pixelValue |= unchecked((int)0xff000000);
-                Color c = Color.FromArgb(pixelValue);
-                //Color color = Color.FromArgb((unchecked((int)0xff000000)) | pixelValue);
-                newBitmap.SetPixel(x, y, c);
+                var c = Color.FromArgb(pixelValue);
+                bitmap.SetPixel(x, y, c);
             }
         }
-        return newBitmap;
+        return bitmap;
     }
     public static int[][] GetPixelArray(Bitmap bitmap)
     {
@@ -37,29 +37,29 @@ public partial class FormMain : Form
         }
         // 锁定bitmap的位
         var rect = new Rectangle(0, 0, width, height);
-        BitmapData bmpData = bitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
+        var data = bitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
 
         // 获取每行的字节长度
         int bytesPerPixel = Image.GetPixelFormatSize(bitmap.PixelFormat) / 8;
-        int bytes = Math.Abs(bmpData.Stride) * height;
+        int bytes = Math.Abs(data.Stride) * height;
         byte[] rgbValues = new byte[bytes];
 
         // 复制像素数据到数组中
-        System.Runtime.InteropServices.Marshal.Copy(bmpData.Scan0, rgbValues, 0, bytes);
+        System.Runtime.InteropServices.Marshal.Copy(data.Scan0, rgbValues, 0, bytes);
 
         // 遍历像素数据并填充到数组中
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                int i = y * bmpData.Stride + x * bytesPerPixel; // 计算当前像素的索引位置
+                int i = y * data.Stride + x * bytesPerPixel; // 计算当前像素的索引位置
                 var v = rgbValues[i] | (rgbValues[i + 1] << 8) | (rgbValues[i + 2] << 16) | (rgbValues[i + 3] << 24);
                 pixelArray[y][x] = v; // 对于24位图像，直接组合RGB值
             }
         }
 
         // 解锁bitmap的位
-        bitmap.UnlockBits(bmpData);
+        bitmap.UnlockBits(data);
 
         return pixelArray;
     }
@@ -71,7 +71,7 @@ public partial class FormMain : Form
         Complex[] W;
         Complex[] X1;
         Complex[] X2;
-        Complex[] X;
+        //Complex[] X;
         Complex comp;
         double angle;  // 计算加权时所需角度
         count = 1 << r;
@@ -79,7 +79,7 @@ public partial class FormMain : Form
         W = new Complex[count / 2];
         X1 = new Complex[count];
         X2 = new Complex[count];
-        X = new Complex[count];
+        //X = new Complex[count];
         for (i = 0; i < count / 2; i++)
         {
             angle = i * Math.PI * 2 / count;
@@ -102,9 +102,10 @@ public partial class FormMain : Form
                     X2[i + p + bsize / 2] = comp * W[i * (1 << k)];
                 }
             }
-            X = X1;
-            X1 = X2;
-            X2 = X;
+            //X = X1;
+            //X1 = X2;
+            //X2 = X;
+            (X1,X2) = (X2, X1);
         }
 
         for (j = 0; j < count; j++)
@@ -120,11 +121,11 @@ public partial class FormMain : Form
             f[j] = X1[p];
         }
     }
-    public static Bitmap Fourier(Bitmap tp)
+    public static Bitmap Fourier(Bitmap bitmap)
     {
         // 原图像的宽与高
-        int w = tp.Width;
-        int h = tp.Height;
+        int w = bitmap.Width;
+        int h = bitmap.Height;
         // 傅立叶变换的实际宽高
         long lw = 1;
         long lh = 1;
@@ -133,9 +134,7 @@ public partial class FormMain : Form
         long i, j;
         long n, m;
         double kt;
-        Complex[] t;
-        Complex[] f;
-        var ky = GetPixelArray(tp);
+        var data = GetPixelArray(bitmap);
 
         while (lw * 2 <= w)
         {
@@ -147,15 +146,15 @@ public partial class FormMain : Form
             lh *= 2;
             hp++;
         }
-        t = new Complex[lw * lh];
-        f = new Complex[lw * lh];
-        Complex[] tw = new Complex[lw];
-        Complex[] th = new Complex[lw];
+        var t = new Complex[lw * lh];
+        var f = new Complex[lw * lh];
+        var tw = new Complex[lw];
+        var th = new Complex[lw];
         for (i = 0; i < lh; i++)
         {
             for (j = 0; j < lw; j++)
             {
-                t[i * lw + j] = new Complex(ky[i][j] == 0 ? 0 : 0xffffff, 0.0);
+                t[i * lw + j] = new Complex(data[i][j] == 0 ? 0 : 0xffffff, 0.0);
             }
         }
         for (i = 0; i < lh; i++) // 垂直方向傅立叶变换
@@ -175,8 +174,8 @@ public partial class FormMain : Form
             }
         }
 
-        Complex[] ow = new Complex[lh];
-        Complex[] oh = new Complex[lh];
+        var ow = new Complex[lh];
+        var oh = new Complex[lh];
         for (i = 0; i < lw; i++)
         {
             Array.Copy(t, i * lh, ow, 0, lh);
@@ -197,12 +196,12 @@ public partial class FormMain : Form
                 kt = (val / max) * 255.0;// ( / max * 255.0);
                 n = (h - lh) / 2 + (i < lh / 2 ? i + lh / 2 : i - lh / 2);
                 m = (w - lw) / 2 + (j < lw / 2 ? j + lw / 2 : j - lw / 2);
-                ky[n][m] = Color.FromArgb((byte)(kt),
+                data[n][m] = Color.FromArgb((byte)(kt),
                     (byte)(kt), (byte)(kt)).ToArgb();
             }
         }
 
-        return GetBitmap(ky, tp);
+        return GetBitmap(data);
     }
     public FormMain()
     {
@@ -216,11 +215,11 @@ public partial class FormMain : Form
         Left
     }
 
-    Direction Turn(Direction d, bool left = true) => left
+    private static Direction Turn(Direction d, bool left = true) => left
             ? (Direction)(((int)d + 1) % 4)
             : (d == Direction.Down) ? Direction.Left : ((Direction)((int)d) - 1)
         ;
-    Point LeftOf(Point p, Direction d) => d switch
+    private static Point LeftOf(Point p, Direction d) => d switch
     {
         Direction.Down => new Point(p.X + 1, p.Y),
         Direction.Right => new Point(p.X, p.Y - 1),
@@ -228,7 +227,7 @@ public partial class FormMain : Form
         Direction.Left => new Point(p.X, p.Y + 1),
         _ => p,
     };
-    Point RightOf(Point p, Direction d) => d switch
+    private static Point RightOf(Point p, Direction d) => d switch
     {
         Direction.Down => new Point(p.X - 1, p.Y),
         Direction.Right => new Point(p.X, p.Y + 1),
@@ -237,7 +236,7 @@ public partial class FormMain : Form
         _ => p,
     };
 
-    Point ForwardOf(Point p, Direction d) => d switch
+    private static Point ForwardOf(Point p, Direction d) => d switch
     {
         Direction.Down => new Point(p.X, p.Y + 1),
         Direction.Right => new Point(p.X + 1, p.Y),
@@ -245,7 +244,7 @@ public partial class FormMain : Form
         Direction.Left => new Point(p.X - 1, p.Y),
         _ => p,
     };
-    bool IsPrime(long n)
+    private static bool IsPrime(long n)
     {
         if (n < 2) return false;
         if (n == 2) return true;
@@ -263,7 +262,7 @@ public partial class FormMain : Form
     bool inverse = false;
     int length = 0;
     (int, long, bool)[,]? primes = null;
-    (int, long, bool)[,] BuildPrimesMap(int length)
+    private static (int, long, bool)[,] BuildPrimesMap(int length)
     {
         var map = new (int, long, bool)[length, length];
         Point center = new(length >> 1, length >> 1);
@@ -317,7 +316,7 @@ public partial class FormMain : Form
         return map;
     }
 
-    Point FlipProject(Size size, Point p, bool flip = false)
+    private static Point FlipProject(Size size, Point p, bool flip = false)
     {
         var cp = new Point(size.Width >> 1, size.Height >> 1);
         if (!flip)
@@ -369,15 +368,13 @@ public partial class FormMain : Form
     }
     private void GenerateButton_Click(object sender, EventArgs e)
     {
-        if (this.PrimesPictureBox.Image is Bitmap bitmap)
+        if (this.PrimesPictureBox.Image is Bitmap bitmap
+            && bitmap.Clone() is Bitmap clone)
         {
-            if (bitmap.Clone() is Bitmap clone)
-            {
-                bitmap.Dispose();
-                this.PrimesPictureBox.Image = null;
-                this.PrimesPictureBox.Image = Fourier(clone);
-                clone.Dispose();
-            }
+            bitmap.Dispose();
+            this.PrimesPictureBox.Image = null;
+            this.PrimesPictureBox.Image = Fourier(clone);
+            clone.Dispose();
         }
     }
 
@@ -409,9 +406,9 @@ public partial class FormMain : Form
                     mp.X = this.length - 1;
                 if (mp.Y > this.length - 1)
                     mp.Y = this.length - 1;
-                if(mp.X<0)
+                if (mp.X < 0)
                     mp.X = 0;
-                if (mp.Y<0)
+                if (mp.Y < 0)
                     mp.Y = 0;
 
                 var p = this.primes![(int)mp.X, (int)mp.Y];
@@ -425,7 +422,7 @@ public partial class FormMain : Form
 
     private void ResetButton_Click(object sender, EventArgs e)
     {
-        this.Reset(); 
+        this.Reset();
     }
 
     private void RotateButton_Click(object sender, EventArgs e)
