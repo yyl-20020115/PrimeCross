@@ -132,7 +132,7 @@ public partial class FormMain : Form
         int wp = 0; int hp = 0;
         long i, j;
         long n, m;
-        double temp;
+        double kt;
         Complex[] t;
         Complex[] f;
         var ky = GetPixelArray(tp);
@@ -193,11 +193,12 @@ public partial class FormMain : Form
         {
             for (j = 0; j < lw; j++)
             {
-                temp = (f[j * lh + i].Magnitude / max) * 255.0;// ( / max * 255.0);
+                var val = f[j * lh + i].Magnitude;
+                kt = (val / max) * 255.0;// ( / max * 255.0);
                 n = (h - lh) / 2 + (i < lh / 2 ? i + lh / 2 : i - lh / 2);
                 m = (w - lw) / 2 + (j < lw / 2 ? j + lw / 2 : j - lw / 2);
-                ky[n][m] = Color.FromArgb((byte)(temp),
-                    (byte)(temp), (byte)(temp)).ToArgb();
+                ky[n][m] = Color.FromArgb((byte)(kt),
+                    (byte)(kt), (byte)(kt)).ToArgb();
             }
         }
 
