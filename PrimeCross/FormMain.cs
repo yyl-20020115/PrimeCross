@@ -1,7 +1,208 @@
+using System.Drawing.Imaging;
+using System.Numerics;
+
 namespace PrimeCross;
 
 public partial class FormMain : Form
 {
+    public static Bitmap GetBitmap(int[][] pixelArray, Bitmap bitmap)
+    {
+        // 创建一个新的Bitmap对象来存储修改后的图像
+        var newBitmap = new Bitmap(bitmap.Width, bitmap.Height);
+        using var g = Graphics.FromImage(newBitmap);
+        g.Clear(Color.Blue);
+        // 遍历像素数组并设置新Bitmap的像素值
+        for (int y = 0; y < bitmap.Height; y++)
+        {
+            for (int x = 0; x < bitmap.Width; x++)
+            {
+                int pixelValue = pixelArray[y][x];
+                pixelValue |= unchecked((int)0xff000000);
+                Color c = Color.FromArgb(pixelValue);
+                //Color color = Color.FromArgb((unchecked((int)0xff000000)) | pixelValue);
+                newBitmap.SetPixel(x, y, c);
+            }
+        }
+        return newBitmap;
+    }
+    public static int[][] GetPixelArray(Bitmap bitmap)
+    {
+        // 创建一个与bitmap大小相同的数组来存储像素值
+        int width = bitmap.Width;
+        int height = bitmap.Height;
+        int[][] pixelArray = new int[height][];
+        for (int i = 0; i < height; i++)
+        {
+            pixelArray[i] = new int[width];
+        }
+        // 锁定bitmap的位
+        var rect = new Rectangle(0, 0, width, height);
+        BitmapData bmpData = bitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
+
+        // 获取每行的字节长度
+        int bytesPerPixel = Image.GetPixelFormatSize(bitmap.PixelFormat) / 8;
+        int bytes = Math.Abs(bmpData.Stride) * height;
+        byte[] rgbValues = new byte[bytes];
+
+        // 复制像素数据到数组中
+        System.Runtime.InteropServices.Marshal.Copy(bmpData.Scan0, rgbValues, 0, bytes);
+
+        // 遍历像素数据并填充到数组中
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                int i = y * bmpData.Stride + x * bytesPerPixel; // 计算当前像素的索引位置
+                var v = rgbValues[i] | (rgbValues[i + 1] << 8) | (rgbValues[i + 2] << 16) | (rgbValues[i + 3] << 24);
+                pixelArray[y][x] = v; // 对于24位图像，直接组合RGB值
+            }
+        }
+
+        // 解锁bitmap的位
+        bitmap.UnlockBits(bmpData);
+
+        return pixelArray;
+    }
+    //  快速傅立叶变换
+    public static void FFT(Complex[] t, Complex[] f, int r)   // t为时域，f为频域 r为2的幂数
+    {
+        long count;
+        int i, j, k, p, bsize;
+        Complex[] W;
+        Complex[] X1;
+        Complex[] X2;
+        Complex[] X;
+        Complex comp;
+        double angle;  // 计算加权时所需角度
+        count = 1 << r;
+
+        W = new Complex[count / 2];
+        X1 = new Complex[count];
+        X2 = new Complex[count];
+        X = new Complex[count];
+        for (i = 0; i < count / 2; i++)
+        {
+            angle = i * Math.PI * 2 / count;
+            W[i] = new Complex((double)Math.Cos(angle)
+            , -(double)Math.Sin(angle));
+        }
+
+        t.CopyTo(X1, 0);
+
+        for (k = 0; k < r; k++)
+        {
+            for (j = 0; j < 1 << k; j++)
+            {
+                bsize = 1 << (r - k);
+                for (i = 0; i < bsize / 2; i++)
+                {
+                    p = j * bsize;
+                    X2[i + p] = X1[i + p] + X1[i + p + bsize / 2];
+                    comp = X1[i + p] - X1[i + p + bsize / 2];
+                    X2[i + p + bsize / 2] = comp * W[i * (1 << k)];
+                }
+            }
+            X = X1;
+            X1 = X2;
+            X2 = X;
+        }
+
+        for (j = 0; j < count; j++)
+        {
+            p = 0;
+            for (i = 0; i < r; i++)
+            {
+                if ((j & (1 << i)) != 0)
+                {
+                    p += 1 << (r - i - 1);
+                }
+            }
+            f[j] = X1[p];
+        }
+    }
+    public static Bitmap Fourier(Bitmap tp)
+    {
+        // 原图像的宽与高
+        int w = tp.Width;
+        int h = tp.Height;
+        // 傅立叶变换的实际宽高
+        long lw = 1;
+        long lh = 1;
+        // 迭代次数
+        int wp = 0; int hp = 0;
+        long i, j;
+        long n, m;
+        double temp;
+        Complex[] t;
+        Complex[] f;
+        var ky = GetPixelArray(tp);
+
+        while (lw * 2 <= w)
+        {
+            lw *= 2;
+            wp++;
+        }
+        while (lh * 2 <= h)
+        {
+            lh *= 2;
+            hp++;
+        }
+        t = new Complex[lw * lh];
+        f = new Complex[lw * lh];
+        Complex[] tw = new Complex[lw];
+        Complex[] th = new Complex[lw];
+        for (i = 0; i < lh; i++)
+        {
+            for (j = 0; j < lw; j++)
+            {
+                t[i * lw + j] = new Complex(ky[i][j] == 0 ? 0 : 0xffffff, 0.0);
+            }
+        }
+        for (i = 0; i < lh; i++) // 垂直方向傅立叶变换
+        {
+            Array.Copy(t, i * lw, tw, 0, lw);
+            Array.Copy(f, i * lw, th, 0, lw);
+            FFT(tw, th, wp);
+            // Array.Copy(tw, 0, t, i * lw, lw);
+            Array.Copy(th, 0, f, i * lw, lw);
+        }
+
+        for (i = 0; i < lh; i++)
+        {
+            for (j = 0; j < lw; j++)
+            {
+                t[j * lh + i] = f[i * lw + j];
+            }
+        }
+
+        Complex[] ow = new Complex[lh];
+        Complex[] oh = new Complex[lh];
+        for (i = 0; i < lw; i++)
+        {
+            Array.Copy(t, i * lh, ow, 0, lh);
+            Array.Copy(f, i * lh, oh, 0, lh);
+            FFT(ow, oh, hp);
+            //Array.Copy(ow, 0, t, i * lh, lh);
+            oh.CopyTo(f, i * lh);
+        }
+
+
+        var max = f.Max(c => (c.Magnitude));
+
+        for (i = 0; i < lh; i++)
+        {
+            for (j = 0; j < lw; j++)
+            {
+                temp = (f[j * lh + i].Magnitude / max) * 255.0;// ( / max * 255.0);
+                n = (h - lh) / 2 + (i < lh / 2 ? i + lh / 2 : i - lh / 2);
+                m = (w - lw) / 2 + (j < lw / 2 ? j + lw / 2 : j - lw / 2);
+                ky[n][m] = Color.FromArgb((byte)(temp),
+                    (byte)(temp), (byte)(temp)).ToArgb();
+            }
+        }
+
+        return GetBitmap(ky, tp);
+    }
     public FormMain()
     {
         InitializeComponent();
@@ -112,7 +313,7 @@ public partial class FormMain : Form
         }
         return map;
     }
-    private void GenerateButton_Click(object sender, EventArgs e)
+    private void GeneratePrimesMap()
     {
         this.length = Math.Max(PrimesPictureBox.Width, PrimesPictureBox.Height);
         this.primes = BuildPrimesMap(this.length);
@@ -129,20 +330,31 @@ public partial class FormMain : Form
                 bitmap.SetPixel(x, y, c.Item3 ? Color.White : Color.Black);
             }
         }
-
         this.PrimesPictureBox.Image?.Dispose();
         this.PrimesPictureBox.Image = bitmap;
-
+    }
+    private void GenerateButton_Click(object sender, EventArgs e)
+    {
+        if (this.PrimesPictureBox.Image is Bitmap bitmap)
+        {
+            if (bitmap.Clone() is Bitmap clone)
+            {
+                bitmap.Dispose();
+                this.PrimesPictureBox.Image = null;
+                this.PrimesPictureBox.Image = Fourier(clone);
+                clone.Dispose();
+            }
+        }
     }
 
     private void FormMain_Resize(object sender, EventArgs e)
     {
-        this.GenerateButton_Click(sender, e);
+        this.GeneratePrimesMap();
     }
 
     private void FormMain_Load(object sender, EventArgs e)
     {
-        this.GenerateButton_Click(sender, e);
+        this.GeneratePrimesMap();
     }
 
     private void PrimesPictureBox_MouseMove(object sender, MouseEventArgs e)
