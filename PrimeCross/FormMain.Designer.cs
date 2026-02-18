@@ -31,6 +31,8 @@
             PrimesPictureBox = new PictureBox();
             GenerateButton = new Button();
             InfoLabel = new Label();
+            ResetButton = new Button();
+            RotateButton = new Button();
             ((System.ComponentModel.ISupportInitialize)PrimesPictureBox).BeginInit();
             SuspendLayout();
             // 
@@ -64,11 +66,35 @@
             InfoLabel.Size = new Size(0, 24);
             InfoLabel.TabIndex = 2;
             // 
+            // ResetButton
+            // 
+            ResetButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            ResetButton.Location = new Point(558, 404);
+            ResetButton.Name = "ResetButton";
+            ResetButton.Size = new Size(112, 34);
+            ResetButton.TabIndex = 3;
+            ResetButton.Text = "&Reset";
+            ResetButton.UseVisualStyleBackColor = true;
+            ResetButton.Click += ResetButton_Click;
+            // 
+            // RotateButton
+            // 
+            RotateButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            RotateButton.Location = new Point(440, 404);
+            RotateButton.Name = "RotateButton";
+            RotateButton.Size = new Size(112, 34);
+            RotateButton.TabIndex = 4;
+            RotateButton.Text = "R&otate";
+            RotateButton.UseVisualStyleBackColor = true;
+            RotateButton.Click += RotateButton_Click;
+            // 
             // FormMain
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 449);
+            Controls.Add(RotateButton);
+            Controls.Add(ResetButton);
             Controls.Add(InfoLabel);
             Controls.Add(GenerateButton);
             Controls.Add(PrimesPictureBox);
@@ -86,5 +112,7 @@
         private PictureBox PrimesPictureBox;
         private Button GenerateButton;
         private Label InfoLabel;
+        private Button ResetButton;
+        private Button RotateButton;
     }
 }

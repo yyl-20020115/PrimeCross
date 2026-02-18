@@ -331,8 +331,48 @@ public partial class FormMain : Form
                 bitmap.SetPixel(x, y, c.Item3 ? Color.White : Color.Black);
             }
         }
+
         this.PrimesPictureBox.Image?.Dispose();
         this.PrimesPictureBox.Image = bitmap;
+    }
+    private void Rotate()
+    {
+        if (this.PrimesPictureBox.Image is Bitmap bitmap)
+        {
+            var hw = bitmap.Width >> 1;
+            var hh = bitmap.Height >> 1;
+
+            var target = new Bitmap(bitmap);
+            using (var g = Graphics.FromImage(target))
+            {
+                //g.Clear(Color.Black);
+                // 将原始Bitmap的四个象限分别绘制到新Bitmap的对应位置
+                //1 2
+                //3 4
+                // 绘制第一象限:1->4
+                g.DrawImage(bitmap,
+                    new Rectangle(hw, hh, hw, hh), // 目标矩形（新Bitmap上的位置和大小）
+                    new Rectangle(0, 0, hw, hh), // 源矩形（原始Bitmap上的位置和大小）
+                    GraphicsUnit.Pixel);
+                // 绘制第二象限:2->3
+                g.DrawImage(bitmap,
+                    new Rectangle(0, hh, hw - 1, hh - 1), // 目标矩形（新Bitmap上的位置和大小）
+                    new Rectangle(hw, 0, hw - 1, hh - 1), // 源矩形（原始Bitmap上的位置和大小）
+                    GraphicsUnit.Pixel);
+                // 绘制第三象限:3->2
+                g.DrawImage(bitmap,
+                    new Rectangle(hw, 0, hw - 1, hh - 1), // 目标矩形（新Bitmap上的位置和大小）
+                    new Rectangle(0, hh, hw - 1, hh - 1), // 源矩形（原始Bitmap上的位置和大小）
+                    GraphicsUnit.Pixel);
+                // 绘制第四象限:4->1
+                g.DrawImage(bitmap,
+                    new Rectangle(0, 0, hw - 1, hh - 1), // 目标矩形（新Bitmap上的位置和大小）
+                    new Rectangle(hw, hh, hw - 1, hh - 1), // 源矩形（原始Bitmap上的位置和大小）
+                    GraphicsUnit.Pixel);
+            }
+            this.PrimesPictureBox.Image?.Dispose();
+            this.PrimesPictureBox.Image = target;
+        }
     }
     private void GenerateButton_Click(object sender, EventArgs e)
     {
@@ -379,5 +419,15 @@ public partial class FormMain : Form
                 this.InfoLabel.Text = $"n={n}, x={dp.X}, y={dp.Y}, d={t:N4}°: {(b ? "Prime" : "Composite")}";
             }
         }
+    }
+
+    private void ResetButton_Click(object sender, EventArgs e)
+    {
+        this.GeneratePrimesMap();
+    }
+
+    private void RotateButton_Click(object sender, EventArgs e)
+    {
+        this.Rotate();
     }
 }
