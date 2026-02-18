@@ -9,10 +9,8 @@ public partial class FormMain : Form
     {
         var height = pixelArray.GetLength(0);
         var width = pixelArray[0].GetLength(0);
-        // 创建一个新的Bitmap对象来存储修改后的图像
         var bitmap = new Bitmap(width, height);
         using var g = Graphics.FromImage(bitmap);
-        // 遍历像素数组并设置新Bitmap的像素值
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -27,7 +25,6 @@ public partial class FormMain : Form
     }
     public static int[][] GetPixelArray(Bitmap bitmap)
     {
-        // 创建一个与bitmap大小相同的数组来存储像素值
         int width = bitmap.Width;
         int height = bitmap.Height;
         int[][] pixelArray = new int[height][];
@@ -35,19 +32,15 @@ public partial class FormMain : Form
         {
             pixelArray[i] = new int[width];
         }
-        // 锁定bitmap的位
         var rect = new Rectangle(0, 0, width, height);
         var data = bitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
 
-        // 获取每行的字节长度
         int bytesPerPixel = Image.GetPixelFormatSize(bitmap.PixelFormat) / 8;
         int bytes = Math.Abs(data.Stride) * height;
-        byte[] rgbValues = new byte[bytes];
+        var rgbValues = new byte[bytes];
 
-        // 复制像素数据到数组中
         System.Runtime.InteropServices.Marshal.Copy(data.Scan0, rgbValues, 0, bytes);
 
-        // 遍历像素数据并填充到数组中
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -58,13 +51,12 @@ public partial class FormMain : Form
             }
         }
 
-        // 解锁bitmap的位
         bitmap.UnlockBits(data);
 
         return pixelArray;
     }
-    //  快速傅立叶变换
-    public static void FFT(Complex[] t, Complex[] f, int r)   // t为时域，f为频域 r为2的幂数
+    public static void FFT(Complex[] t, Complex[] f, int r) 
+        // t为时域，f为频域 r为2的幂数
     {
         long count;
         int i, j, k, p, bsize;
@@ -83,8 +75,7 @@ public partial class FormMain : Form
         for (i = 0; i < count / 2; i++)
         {
             angle = i * Math.PI * 2 / count;
-            W[i] = new Complex((double)Math.Cos(angle)
-            , -(double)Math.Sin(angle));
+            W[i] = new (Math.Cos(angle),-Math.Sin(angle));
         }
 
         t.CopyTo(X1, 0);
@@ -154,7 +145,7 @@ public partial class FormMain : Form
         {
             for (j = 0; j < lw; j++)
             {
-                t[i * lw + j] = new Complex(data[i][j] == 0 ? 0 : 0xffffff, 0.0);
+                t[i * lw + j] = new (data[i][j] == 0 ? 0 : 0xffffff, 0.0);
             }
         }
         for (i = 0; i < lh; i++) // 垂直方向傅立叶变换
@@ -181,7 +172,6 @@ public partial class FormMain : Form
             Array.Copy(t, i * lh, ow, 0, lh);
             Array.Copy(f, i * lh, oh, 0, lh);
             FFT(ow, oh, hp);
-            //Array.Copy(ow, 0, t, i * lh, lh);
             oh.CopyTo(f, i * lh);
         }
 
@@ -221,27 +211,27 @@ public partial class FormMain : Form
         ;
     private static Point LeftOf(Point p, Direction d) => d switch
     {
-        Direction.Down => new Point(p.X + 1, p.Y),
-        Direction.Right => new Point(p.X, p.Y - 1),
-        Direction.Up => new Point(p.X - 1, p.Y),
-        Direction.Left => new Point(p.X, p.Y + 1),
+        Direction.Down => new (p.X + 1, p.Y),
+        Direction.Right => new (p.X, p.Y - 1),
+        Direction.Up => new (p.X - 1, p.Y),
+        Direction.Left => new (p.X, p.Y + 1),
         _ => p,
     };
     private static Point RightOf(Point p, Direction d) => d switch
     {
-        Direction.Down => new Point(p.X - 1, p.Y),
-        Direction.Right => new Point(p.X, p.Y + 1),
-        Direction.Up => new Point(p.X + 1, p.Y),
-        Direction.Left => new Point(p.X, p.Y - 1),
+        Direction.Down => new (p.X - 1, p.Y),
+        Direction.Right => new (p.X, p.Y + 1),
+        Direction.Up => new (p.X + 1, p.Y),
+        Direction.Left => new (p.X, p.Y - 1),
         _ => p,
     };
 
     private static Point ForwardOf(Point p, Direction d) => d switch
     {
-        Direction.Down => new Point(p.X, p.Y + 1),
-        Direction.Right => new Point(p.X + 1, p.Y),
-        Direction.Up => new Point(p.X, p.Y - 1),
-        Direction.Left => new Point(p.X - 1, p.Y),
+        Direction.Down => new (p.X, p.Y + 1),
+        Direction.Right => new (p.X + 1, p.Y),
+        Direction.Up => new (p.X, p.Y - 1),
+        Direction.Left => new (p.X - 1, p.Y),
         _ => p,
     };
     private static bool IsPrime(long n)
