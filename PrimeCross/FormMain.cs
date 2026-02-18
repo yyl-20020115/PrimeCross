@@ -259,6 +259,7 @@ public partial class FormMain : Form
     const int Black = 0x000000;
     const int White = 0xffffff;
     const int Red = 0x0000ff;
+    bool flip = false;
     int length = 0;
     (int, long, bool)[,]? primes = null;
     (int, long, bool)[,] BuildPrimesMap(int length)
@@ -315,15 +316,20 @@ public partial class FormMain : Form
         return map;
     }
 
-    Point Project(Size size, Point p, bool flip = false)
+    Point FlipProject(Size size, Point p, bool flip = false)
     {
         var cp = new Point(size.Width >> 1, size.Height >> 1);
-        return !flip
-            ? p
-            : new Point(
-            p.X < cp.X ? cp.X - p.X : size.Width + (cp.X - p.X) - 1,
-            p.Y < cp.Y ? cp.Y - p.Y : size.Height + (cp.Y - p.Y) - 1
-            );
+        if (!flip)
+        {
+            return p;
+        }
+        else
+        {
+            int x = p.X, y = p.Y;
+            x = x < cp.X ? cp.X - x : size.Width + (cp.X - x) - 1;
+            y = y < cp.Y ? cp.Y - y : size.Height + (cp.Y - y) - 1;
+            return new Point(x, y);
+        }
     }
     private void GeneratePrimesMap(bool flip = false)
     {
@@ -339,7 +345,7 @@ public partial class FormMain : Form
                 var px = x + ((this.length - PrimesPictureBox.Width) >> 1);
                 var py = y + ((this.length - PrimesPictureBox.Height) >> 1);
                 var c = this.primes[px, py];
-                var fp = Project(size, new Point(x, y), flip);
+                var fp = FlipProject(size, new Point(x, y), flip);
                 bitmap.SetPixel(fp.X, fp.Y, c.Item3 ? Color.White : Color.Black);
             }
         }
@@ -349,7 +355,7 @@ public partial class FormMain : Form
     }
     private void Flip()
     {
-        this.GeneratePrimesMap(true);
+        this.GeneratePrimesMap(this.flip = !this.flip);
     }
     private void GenerateButton_Click(object sender, EventArgs e)
     {
@@ -367,12 +373,12 @@ public partial class FormMain : Form
 
     private void FormMain_Resize(object sender, EventArgs e)
     {
-        this.GeneratePrimesMap();
+        this.GeneratePrimesMap(this.flip);
     }
 
     private void FormMain_Load(object sender, EventArgs e)
     {
-        this.GeneratePrimesMap();
+        this.GeneratePrimesMap(this.flip);
     }
 
     private void PrimesPictureBox_MouseMove(object sender, MouseEventArgs e)
@@ -400,7 +406,7 @@ public partial class FormMain : Form
 
     private void ResetButton_Click(object sender, EventArgs e)
     {
-        this.GeneratePrimesMap();
+        this.GeneratePrimesMap(this.flip = false);
     }
 
     private void RotateButton_Click(object sender, EventArgs e)
