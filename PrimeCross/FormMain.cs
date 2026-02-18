@@ -56,14 +56,12 @@ public partial class FormMain : Form
         return pixelArray;
     }
     public static void FFT(Complex[] t, Complex[] f, int r) 
-        // t为时域，f为频域 r为2的幂数
     {
         long count;
         int i, j, k, p, bsize;
         Complex[] W;
         Complex[] X1;
         Complex[] X2;
-        //Complex[] X;
         Complex comp;
         double angle;  // 计算加权时所需角度
         count = 1 << r;
@@ -71,7 +69,6 @@ public partial class FormMain : Form
         W = new Complex[count / 2];
         X1 = new Complex[count];
         X2 = new Complex[count];
-        //X = new Complex[count];
         for (i = 0; i < count / 2; i++)
         {
             angle = i * Math.PI * 2 / count;
@@ -93,9 +90,6 @@ public partial class FormMain : Form
                     X2[i + p + bsize / 2] = comp * W[i * (1 << k)];
                 }
             }
-            //X = X1;
-            //X1 = X2;
-            //X2 = X;
             (X1,X2) = (X2, X1);
         }
 
@@ -114,14 +108,12 @@ public partial class FormMain : Form
     }
     public static Bitmap Fourier(Bitmap bitmap)
     {
-        // 原图像的宽与高
         int w = bitmap.Width;
         int h = bitmap.Height;
-        // 傅立叶变换的实际宽高
         long lw = 1;
         long lh = 1;
-        // 迭代次数
-        int wp = 0; int hp = 0;
+        int wp = 0; 
+        int hp = 0;
         long i, j;
         long n, m;
         double kt;
@@ -153,7 +145,6 @@ public partial class FormMain : Form
             Array.Copy(t, i * lw, tw, 0, lw);
             Array.Copy(f, i * lw, th, 0, lw);
             FFT(tw, th, wp);
-            // Array.Copy(tw, 0, t, i * lw, lw);
             Array.Copy(th, 0, f, i * lw, lw);
         }
 
