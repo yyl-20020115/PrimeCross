@@ -385,8 +385,8 @@ public partial class FormMain : Form
     {
         if (this.primes != null && PrimesPictureBox.Image != null)
         {
-            var x = e.X + ((PrimesPictureBox.Image.Width - PrimesPictureBox.Width) >> 1);
-            var y = e.Y + ((PrimesPictureBox.Image.Height - PrimesPictureBox.Height) >> 1);
+            var x = e.X;// + ((PrimesPictureBox.Image.Width - PrimesPictureBox.Width) >> 1);
+            var y = e.Y;// + ((PrimesPictureBox.Image.Height - PrimesPictureBox.Height) >> 1);
 
             if (x >= 0 && x < PrimesPictureBox.Image.Width
                 && y >= 0 && y < PrimesPictureBox.Image.Height)
@@ -394,12 +394,20 @@ public partial class FormMain : Form
                 PointF cp = new(PrimesPictureBox.Image.Width >> 1, PrimesPictureBox.Image.Height >> 1);
                 PointF dp = new(x - cp.X, cp.Y - y);
 
-                PointF mp = new(dp.X + (this.length >> 1), dp.Y + (this.length >> 1));
-                var p = this.primes![(int)mp.X, (int)mp.Y];
-                long n = p.Item2;
-                bool b = p.Item3;
-                var t = Math.Atan2(dp.Y, dp.X) / Math.PI * 180.0;
-                this.InfoLabel.Text = $"n={n}, x={dp.X}, y={dp.Y}, d={t:N4}°: {(b ? "Prime" : "Composite")}";
+                PointF mp = new(dp.X + (this.length >> 1) - 1, dp.Y + (this.length >> 1) - 1);
+                try
+                {
+                    var p = this.primes![(int)mp.X, (int)mp.Y];
+                    long n = p.Item2;
+                    bool b = p.Item3;
+                    var t = Math.Atan2(dp.Y, dp.X) / Math.PI * 180.0;
+                    this.InfoLabel.Text = $"n={n}, x={dp.X}, y={dp.Y}, d={t:N4}°: {(b ? "Prime" : "Composite")}";
+
+                }
+                catch (Exception ex)
+                {
+                    this.InfoLabel.Text = $"Error: {ex.Message}";
+                }
             }
         }
     }

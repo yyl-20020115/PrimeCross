@@ -41,7 +41,7 @@
             PrimesPictureBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             PrimesPictureBox.Location = new Point(12, 12);
             PrimesPictureBox.Name = "PrimesPictureBox";
-            PrimesPictureBox.Size = new Size(776, 381);
+            PrimesPictureBox.Size = new Size(720, 720);
             PrimesPictureBox.TabIndex = 0;
             PrimesPictureBox.TabStop = false;
             PrimesPictureBox.MouseMove += PrimesPictureBox_MouseMove;
@@ -49,7 +49,7 @@
             // GenerateButton
             // 
             GenerateButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            GenerateButton.Location = new Point(676, 404);
+            GenerateButton.Location = new Point(620, 743);
             GenerateButton.Name = "GenerateButton";
             GenerateButton.Size = new Size(112, 34);
             GenerateButton.TabIndex = 1;
@@ -61,7 +61,7 @@
             // 
             InfoLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             InfoLabel.AutoSize = true;
-            InfoLabel.Location = new Point(13, 412);
+            InfoLabel.Location = new Point(13, 751);
             InfoLabel.Name = "InfoLabel";
             InfoLabel.Size = new Size(0, 24);
             InfoLabel.TabIndex = 2;
@@ -69,7 +69,7 @@
             // ResetButton
             // 
             ResetButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            ResetButton.Location = new Point(558, 404);
+            ResetButton.Location = new Point(502, 743);
             ResetButton.Name = "ResetButton";
             ResetButton.Size = new Size(112, 34);
             ResetButton.TabIndex = 3;
@@ -80,7 +80,7 @@
             // FlipButton
             // 
             FlipButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            FlipButton.Location = new Point(440, 404);
+            FlipButton.Location = new Point(384, 743);
             FlipButton.Name = "FlipButton";
             FlipButton.Size = new Size(112, 34);
             FlipButton.TabIndex = 4;
@@ -92,7 +92,7 @@
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 449);
+            ClientSize = new Size(744, 788);
             Controls.Add(FlipButton);
             Controls.Add(ResetButton);
             Controls.Add(InfoLabel);
