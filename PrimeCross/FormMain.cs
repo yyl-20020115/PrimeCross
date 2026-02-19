@@ -55,15 +55,13 @@ public partial class FormMain : Form
     {
         long count = 1 << r;
         int i, j, k, p, bsize;
-        Complex comp;
-        double angle;
 
         var W = new Complex[count / 2];
         var X1 = new Complex[count];
         var X2 = new Complex[count];
         for (i = 0; i < count / 2; i++)
         {
-            angle = i * Math.PI * 2 / count;
+            var angle = i * Math.PI * 2 / count;
             W[i] = new(Math.Cos(angle), -Math.Sin(angle));
         }
 
@@ -77,9 +75,13 @@ public partial class FormMain : Form
                 for (i = 0; i < bsize / 2; i++)
                 {
                     p = j * bsize;
-                    X2[i + p] = X1[i + p] + X1[i + p + bsize / 2];
-                    comp = X1[i + p] - X1[i + p + bsize / 2];
-                    X2[i + p + bsize / 2] = comp * W[i * (1 << k)];
+                    X2[i + p] 
+                        = X1[i + p] + X1[i + p + bsize / 2]
+                        ;
+                    X2[i + p + bsize / 2] 
+                        = (X1[i + p] - X1[i + p + bsize / 2]) 
+                        * W[i * (1 << k)]
+                        ;
                 }
             }
             (X1, X2) = (X2, X1);
@@ -100,8 +102,8 @@ public partial class FormMain : Form
     }
     public static Bitmap Fourier(Bitmap bitmap)
     {
-        int w = bitmap.Width;
-        int h = bitmap.Height;
+        int width = bitmap.Width;
+        int height = bitmap.Height;
         long lw = 1;
         long lh = 1;
         int wp = 0;
@@ -111,12 +113,12 @@ public partial class FormMain : Form
         double kt;
         var data = GetPixelArray(bitmap);
 
-        while (lw * 2 <= w)
+        while (lw * 2 <= width)
         {
             lw *= 2;
             wp++;
         }
-        while (lh * 2 <= h)
+        while (lh * 2 <= height)
         {
             lh *= 2;
             hp++;
@@ -167,8 +169,8 @@ public partial class FormMain : Form
             {
                 var val = f[j * lh + i].Magnitude;
                 kt = (val / max) * 255.0;
-                n = (h - lh) / 2 + (i < lh / 2 ? i + lh / 2 : i - lh / 2);
-                m = (w - lw) / 2 + (j < lw / 2 ? j + lw / 2 : j - lw / 2);
+                n = (height - lh) / 2 + (i < lh / 2 ? i + lh / 2 : i - lh / 2);
+                m = (width - lw) / 2 + (j < lw / 2 ? j + lw / 2 : j - lw / 2);
                 data[m, n] = Color.FromArgb(
                     (byte)kt,
                     (byte)kt,
@@ -245,11 +247,11 @@ public partial class FormMain : Form
     private static (int, long, bool)[,] BuildPrimesMap(int length)
     {
         var map = new (int, long, bool)[length, length];
-        Point center = new(length >> 1, length >> 1);
+        var center = new Point(length >> 1, length >> 1);
         var direction = Direction.Up;
         long n = 0;
         map[center.X, center.Y] = (White, n++, false);
-        Point p = new(center.X + 1, center.Y + 1);
+        var p = new Point(center.X + 1, center.Y + 1);
         map[p.X, p.Y] = (Red, n++, false);
         p.Y--;
         map[p.X, p.Y] = (White, n++, true);
@@ -369,7 +371,7 @@ public partial class FormMain : Form
 
     private void FormMain_Load(object sender, EventArgs e)
     {
-        this.GeneratePrimesMap(this.flip, this.inverse, this.rotate);
+        this.GeneratePrimesMap();
     }
 
     private void PrimesPictureBox_MouseMove(object sender, MouseEventArgs e)
@@ -381,9 +383,9 @@ public partial class FormMain : Form
             if (x >= 0 && x < PrimesPictureBox.Image.Width
                 && y >= 0 && y < PrimesPictureBox.Image.Height)
             {
-                PointF cp = new(PrimesPictureBox.Image.Width >> 1, PrimesPictureBox.Image.Height >> 1);
-                PointF dp = new(x - cp.X, cp.Y - y);
-                PointF mp = new(dp.X + (this.length >> 1) - 1, dp.Y + (this.length >> 1) - 1);
+                var cp = new PointF(PrimesPictureBox.Image.Width >> 1, PrimesPictureBox.Image.Height >> 1);
+                var dp = new PointF(x - cp.X, cp.Y - y);
+                var mp = new PointF(dp.X + (this.length >> 1) - 1, dp.Y + (this.length >> 1) - 1);
                 if (mp.X > this.length - 1)
                     mp.X = this.length - 1;
                 if (mp.Y > this.length - 1)
