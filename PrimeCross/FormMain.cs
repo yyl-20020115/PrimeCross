@@ -310,11 +310,14 @@ public partial class FormMain : Form
     }
     private void GeneratePrimesMap(bool flip = false, bool inverse = false, bool rotate = false)
     {
-        this.length = Math.Max(PrimesPictureBox.Width, PrimesPictureBox.Height);
-        this.primes = BuildPrimesMap(this.length);
+        this.primes = BuildPrimesMap(
+            this.length = Math.Max(
+                PrimesPictureBox.Width, 
+                PrimesPictureBox.Height)
+            );
 
         var bitmap = new Bitmap(PrimesPictureBox.Width, PrimesPictureBox.Height);
-        Size size = new(PrimesPictureBox.Width, PrimesPictureBox.Height);
+        var size = new Size(PrimesPictureBox.Width, PrimesPictureBox.Height);
         for (int y = 0; y < size.Height; y++)
         {
             for (int x = 0; x < size.Width; x++)
@@ -333,15 +336,15 @@ public partial class FormMain : Form
     }
     private void Reset()
     {
-        this.GeneratePrimesMap(this.flip = false);
+        this.GeneratePrimesMap(this.flip = false, this.inverse = false, this.rotate = false);
     }
     private void Flip()
     {
-        this.GeneratePrimesMap(this.flip = !this.flip, this.inverse);
+        this.GeneratePrimesMap(this.flip = !this.flip, this.inverse, this.rotate);
     }
     private void Inverse()
     {
-        this.GeneratePrimesMap(this.flip, this.inverse = !this.inverse);
+        this.GeneratePrimesMap(this.flip, this.inverse = !this.inverse, this.rotate);
     }
     private void Rotate()
     {
@@ -380,7 +383,6 @@ public partial class FormMain : Form
             {
                 PointF cp = new(PrimesPictureBox.Image.Width >> 1, PrimesPictureBox.Image.Height >> 1);
                 PointF dp = new(x - cp.X, cp.Y - y);
-
                 PointF mp = new(dp.X + (this.length >> 1) - 1, dp.Y + (this.length >> 1) - 1);
                 if (mp.X > this.length - 1)
                     mp.X = this.length - 1;
