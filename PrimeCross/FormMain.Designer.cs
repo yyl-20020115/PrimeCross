@@ -34,6 +34,7 @@
             ResetButton = new Button();
             FlipButton = new Button();
             InverseButton = new Button();
+            RotateButton = new Button();
             ((System.ComponentModel.ISupportInitialize)PrimesPictureBox).BeginInit();
             SuspendLayout();
             // 
@@ -50,7 +51,7 @@
             // GenerateButton
             // 
             GenerateButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            GenerateButton.Location = new Point(634, 743);
+            GenerateButton.Location = new Point(554, 742);
             GenerateButton.Name = "GenerateButton";
             GenerateButton.Size = new Size(96, 34);
             GenerateButton.TabIndex = 1;
@@ -70,10 +71,10 @@
             // ResetButton
             // 
             ResetButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            ResetButton.Location = new Point(555, 743);
+            ResetButton.Location = new Point(653, 742);
             ResetButton.Name = "ResetButton";
             ResetButton.Size = new Size(76, 34);
-            ResetButton.TabIndex = 3;
+            ResetButton.TabIndex = 0;
             ResetButton.Text = "&Reset";
             ResetButton.UseVisualStyleBackColor = true;
             ResetButton.Click += ResetButton_Click;
@@ -81,30 +82,42 @@
             // FlipButton
             // 
             FlipButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            FlipButton.Location = new Point(476, 743);
+            FlipButton.Location = new Point(475, 742);
             FlipButton.Name = "FlipButton";
             FlipButton.Size = new Size(76, 34);
-            FlipButton.TabIndex = 4;
+            FlipButton.TabIndex = 2;
             FlipButton.Text = "&Flip";
             FlipButton.UseVisualStyleBackColor = true;
-            FlipButton.Click += RotateButton_Click;
+            FlipButton.Click += FlipButton_Click;
             // 
             // InverseButton
             // 
             InverseButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            InverseButton.Location = new Point(389, 743);
+            InverseButton.Location = new Point(301, 742);
             InverseButton.Name = "InverseButton";
             InverseButton.Size = new Size(84, 34);
-            InverseButton.TabIndex = 5;
+            InverseButton.TabIndex = 4;
             InverseButton.Text = "&Inverse";
             InverseButton.UseVisualStyleBackColor = true;
             InverseButton.Click += InverseButton_Click;
+            // 
+            // RotateButton
+            // 
+            RotateButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            RotateButton.Location = new Point(388, 742);
+            RotateButton.Name = "RotateButton";
+            RotateButton.Size = new Size(84, 34);
+            RotateButton.TabIndex = 3;
+            RotateButton.Text = "R&otate";
+            RotateButton.UseVisualStyleBackColor = true;
+            RotateButton.Click += RotateButton_Click;
             // 
             // FormMain
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(744, 788);
+            Controls.Add(RotateButton);
             Controls.Add(InverseButton);
             Controls.Add(FlipButton);
             Controls.Add(ResetButton);
@@ -128,5 +141,6 @@
         private Button ResetButton;
         private Button FlipButton;
         private Button InverseButton;
+        private Button RotateButton;
     }
 }

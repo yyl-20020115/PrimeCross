@@ -5,17 +5,17 @@ namespace PrimeCross;
 
 public partial class FormMain : Form
 {
-    public static Bitmap GetBitmap(int[][] pixelArray)
+    public static Bitmap GetBitmap(int[,] pixel)
     {
-        var height = pixelArray.GetLength(0);
-        var width = pixelArray[0].GetLength(0);
+        var width = pixel.GetLength(0);
+        var height = pixel.GetLength(1);
         var bitmap = new Bitmap(width, height);
         using var g = Graphics.FromImage(bitmap);
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                int pixelValue = pixelArray[y][x];
+                int pixelValue = pixel[x, y];
                 pixelValue |= unchecked((int)0xff000000);
                 var c = Color.FromArgb(pixelValue);
                 bitmap.SetPixel(x, y, c);
@@ -23,15 +23,11 @@ public partial class FormMain : Form
         }
         return bitmap;
     }
-    public static int[][] GetPixelArray(Bitmap bitmap)
+    public static int[,] GetPixelArray(Bitmap bitmap)
     {
         int width = bitmap.Width;
         int height = bitmap.Height;
-        int[][] pixelArray = new int[height][];
-        for (int i = 0; i < height; i++)
-        {
-            pixelArray[i] = new int[width];
-        }
+        var pixels = new int[width, height];
         var rect = new Rectangle(0, 0, width, height);
         var data = bitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
 
@@ -47,32 +43,28 @@ public partial class FormMain : Form
             {
                 int i = y * data.Stride + x * bytesPerPixel; // 计算当前像素的索引位置
                 var v = rgbValues[i] | (rgbValues[i + 1] << 8) | (rgbValues[i + 2] << 16) | (rgbValues[i + 3] << 24);
-                pixelArray[y][x] = v; // 对于24位图像，直接组合RGB值
+                pixels[x, y] = v; // 对于24位图像，直接组合RGB值
             }
         }
 
         bitmap.UnlockBits(data);
 
-        return pixelArray;
+        return pixels;
     }
-    public static void FFT(Complex[] t, Complex[] f, int r) 
+    public static void FFT(Complex[] t, Complex[] f, int r)
     {
-        long count;
+        long count = 1 << r;
         int i, j, k, p, bsize;
-        Complex[] W;
-        Complex[] X1;
-        Complex[] X2;
         Complex comp;
-        double angle;  // 计算加权时所需角度
-        count = 1 << r;
+        double angle;
 
-        W = new Complex[count / 2];
-        X1 = new Complex[count];
-        X2 = new Complex[count];
+        var W = new Complex[count / 2];
+        var X1 = new Complex[count];
+        var X2 = new Complex[count];
         for (i = 0; i < count / 2; i++)
         {
             angle = i * Math.PI * 2 / count;
-            W[i] = new (Math.Cos(angle),-Math.Sin(angle));
+            W[i] = new(Math.Cos(angle), -Math.Sin(angle));
         }
 
         t.CopyTo(X1, 0);
@@ -90,7 +82,7 @@ public partial class FormMain : Form
                     X2[i + p + bsize / 2] = comp * W[i * (1 << k)];
                 }
             }
-            (X1,X2) = (X2, X1);
+            (X1, X2) = (X2, X1);
         }
 
         for (j = 0; j < count; j++)
@@ -112,7 +104,7 @@ public partial class FormMain : Form
         int h = bitmap.Height;
         long lw = 1;
         long lh = 1;
-        int wp = 0; 
+        int wp = 0;
         int hp = 0;
         long i, j;
         long n, m;
@@ -137,7 +129,7 @@ public partial class FormMain : Form
         {
             for (j = 0; j < lw; j++)
             {
-                t[i * lw + j] = new (data[i][j] == 0 ? 0 : 0xffffff, 0.0);
+                t[i * lw + j] = new(data[j, i] == 0 ? 0 : 0xffffff, 0.0);
             }
         }
         for (i = 0; i < lh; i++) // 垂直方向傅立叶变换
@@ -177,8 +169,11 @@ public partial class FormMain : Form
                 kt = (val / max) * 255.0;// ( / max * 255.0);
                 n = (h - lh) / 2 + (i < lh / 2 ? i + lh / 2 : i - lh / 2);
                 m = (w - lw) / 2 + (j < lw / 2 ? j + lw / 2 : j - lw / 2);
-                data[n][m] = Color.FromArgb((byte)(kt),
-                    (byte)(kt), (byte)(kt)).ToArgb();
+                data[m, n] = Color.FromArgb(
+                    (byte)kt,
+                    (byte)kt,
+                    (byte)kt)
+                    .ToArgb();
             }
         }
 
@@ -188,7 +183,7 @@ public partial class FormMain : Form
     {
         InitializeComponent();
     }
-    enum Direction : int
+    private enum Direction : int
     {
         Down = 0,
         Right,
@@ -202,38 +197,41 @@ public partial class FormMain : Form
         ;
     private static Point LeftOf(Point p, Direction d) => d switch
     {
-        Direction.Down => new (p.X + 1, p.Y),
-        Direction.Right => new (p.X, p.Y - 1),
-        Direction.Up => new (p.X - 1, p.Y),
-        Direction.Left => new (p.X, p.Y + 1),
+        Direction.Down => new(p.X + 1, p.Y),
+        Direction.Right => new(p.X, p.Y - 1),
+        Direction.Up => new(p.X - 1, p.Y),
+        Direction.Left => new(p.X, p.Y + 1),
         _ => p,
     };
     private static Point RightOf(Point p, Direction d) => d switch
     {
-        Direction.Down => new (p.X - 1, p.Y),
-        Direction.Right => new (p.X, p.Y + 1),
-        Direction.Up => new (p.X + 1, p.Y),
-        Direction.Left => new (p.X, p.Y - 1),
+        Direction.Down => new(p.X - 1, p.Y),
+        Direction.Right => new(p.X, p.Y + 1),
+        Direction.Up => new(p.X + 1, p.Y),
+        Direction.Left => new(p.X, p.Y - 1),
         _ => p,
     };
 
     private static Point ForwardOf(Point p, Direction d) => d switch
     {
-        Direction.Down => new (p.X, p.Y + 1),
-        Direction.Right => new (p.X + 1, p.Y),
-        Direction.Up => new (p.X, p.Y - 1),
-        Direction.Left => new (p.X - 1, p.Y),
+        Direction.Down => new(p.X, p.Y + 1),
+        Direction.Right => new(p.X + 1, p.Y),
+        Direction.Up => new(p.X, p.Y - 1),
+        Direction.Left => new(p.X - 1, p.Y),
         _ => p,
     };
     private static bool IsPrime(long n)
     {
-        if (n < 2) return false;
-        if (n == 2) return true;
+        switch (n)
+        {
+            case < 2:
+                return false;
+            case 2:
+                return true;
+        }
         if (n % 2 == 0) return false;
         for (long i = 3; i <= Math.Sqrt(n); i += 2)
-        {
             if (n % i == 0) return false;
-        }
         return true;
     }
     const int Black = 0x000000;
@@ -241,6 +239,7 @@ public partial class FormMain : Form
     const int Red = 0x0000ff;
     bool flip = false;
     bool inverse = false;
+    bool rotate = false;
     int length = 0;
     (int, long, bool)[,]? primes = null;
     private static (int, long, bool)[,] BuildPrimesMap(int length)
@@ -278,10 +277,7 @@ public partial class FormMain : Form
                 var pt = ForwardOf(p, direction);
                 if (pt.X < 0 || pt.X >= length - 1
                     || pt.Y < 0 || pt.Y >= length - 1)
-                {
                     continue;
-                }
-
                 var px = map[pt.X, pt.Y];
 
                 if (px.Item1 != Black)
@@ -297,22 +293,22 @@ public partial class FormMain : Form
         return map;
     }
 
-    private static Point FlipProject(Size size, Point p, bool flip = false)
+    private static Point FlipProject(Size size, Point p, bool flip = false, bool rotate = false)
     {
         var cp = new Point(size.Width >> 1, size.Height >> 1);
         if (!flip)
         {
-            return p;
+            return rotate ? new Point(p.Y, p.X) : p;
         }
         else
         {
             int x = p.X, y = p.Y;
             x = x < cp.X ? cp.X - x : size.Width + (cp.X - x) - 1;
             y = y < cp.Y ? cp.Y - y : size.Height + (cp.Y - y) - 1;
-            return new Point(x, y);
+            return rotate ? new Point(y, x) : new Point(x, y);
         }
     }
-    private void GeneratePrimesMap(bool flip = false, bool inverse = false)
+    private void GeneratePrimesMap(bool flip = false, bool inverse = false, bool rotate = false)
     {
         this.length = Math.Max(PrimesPictureBox.Width, PrimesPictureBox.Height);
         this.primes = BuildPrimesMap(this.length);
@@ -326,7 +322,7 @@ public partial class FormMain : Form
                 var px = x + ((this.length - PrimesPictureBox.Width) >> 1);
                 var py = y + ((this.length - PrimesPictureBox.Height) >> 1);
                 var c = this.primes[px, py];
-                var fp = FlipProject(size, new Point(x, y), flip);
+                var fp = FlipProject(size, new Point(x, y), flip, rotate);
                 bitmap.SetPixel(fp.X, fp.Y,
                     ((!inverse) ? c.Item3 : !c.Item3) ? Color.White : Color.Black);
             }
@@ -346,6 +342,10 @@ public partial class FormMain : Form
     private void Inverse()
     {
         this.GeneratePrimesMap(this.flip, this.inverse = !this.inverse);
+    }
+    private void Rotate()
+    {
+        this.GeneratePrimesMap(this.flip, this.inverse, this.rotate = !this.rotate);
     }
     private void GenerateButton_Click(object sender, EventArgs e)
     {
@@ -396,7 +396,7 @@ public partial class FormMain : Form
                 long n = p.Item2;
                 bool b = p.Item3;
                 var t = Math.Atan2(dp.Y, dp.X) / Math.PI * 180.0;
-                this.InfoLabel.Text = $"n={n}, x={dp.X}, y={dp.Y}, d={t:N4}°: {(b ? "Prime" : "Composite")}";
+                this.InfoLabel.Text = $"{(b?'P':'C')}:{n} ({dp.X},{dp.Y},{t:N2}°)";
             }
         }
     }
@@ -406,7 +406,7 @@ public partial class FormMain : Form
         this.Reset();
     }
 
-    private void RotateButton_Click(object sender, EventArgs e)
+    private void FlipButton_Click(object sender, EventArgs e)
     {
         this.Flip();
     }
@@ -414,5 +414,10 @@ public partial class FormMain : Form
     private void InverseButton_Click(object sender, EventArgs e)
     {
         this.Inverse();
+    }
+
+    private void RotateButton_Click(object sender, EventArgs e)
+    {
+        this.Rotate();
     }
 }
