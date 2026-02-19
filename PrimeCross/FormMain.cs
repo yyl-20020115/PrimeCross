@@ -41,9 +41,9 @@ public partial class FormMain : Form
         {
             for (int x = 0; x < width; x++)
             {
-                int i = y * data.Stride + x * bytesPerPixel; // 计算当前像素的索引位置
+                int i = y * data.Stride + x * bytesPerPixel;
                 var v = rgbValues[i] | (rgbValues[i + 1] << 8) | (rgbValues[i + 2] << 16) | (rgbValues[i + 3] << 24);
-                pixels[x, y] = v; // 对于24位图像，直接组合RGB值
+                pixels[x, y] = v;
             }
         }
 
@@ -132,7 +132,7 @@ public partial class FormMain : Form
                 t[i * lw + j] = new(data[j, i] == 0 ? 0 : 0xffffff, 0.0);
             }
         }
-        for (i = 0; i < lh; i++) // 垂直方向傅立叶变换
+        for (i = 0; i < lh; i++)
         {
             Array.Copy(t, i * lw, tw, 0, lw);
             Array.Copy(f, i * lw, th, 0, lw);
@@ -166,7 +166,7 @@ public partial class FormMain : Form
             for (j = 0; j < lw; j++)
             {
                 var val = f[j * lh + i].Magnitude;
-                kt = (val / max) * 255.0;// ( / max * 255.0);
+                kt = (val / max) * 255.0;
                 n = (h - lh) / 2 + (i < lh / 2 ? i + lh / 2 : i - lh / 2);
                 m = (w - lw) / 2 + (j < lw / 2 ? j + lw / 2 : j - lw / 2);
                 data[m, n] = Color.FromArgb(
@@ -305,7 +305,7 @@ public partial class FormMain : Form
             int x = p.X, y = p.Y;
             x = x < cp.X ? cp.X - x : size.Width + (cp.X - x) - 1;
             y = y < cp.Y ? cp.Y - y : size.Height + (cp.Y - y) - 1;
-            return rotate ? new Point(y, x) : new Point(x, y);
+            return rotate ? new(y, x) : new(x, y);
         }
     }
     private void GeneratePrimesMap(bool flip = false, bool inverse = false, bool rotate = false)
@@ -361,21 +361,20 @@ public partial class FormMain : Form
 
     private void FormMain_Resize(object sender, EventArgs e)
     {
-        this.GeneratePrimesMap(this.flip);
+        this.GeneratePrimesMap(this.flip, this.inverse, this.rotate);
     }
 
     private void FormMain_Load(object sender, EventArgs e)
     {
-        this.GeneratePrimesMap(this.flip);
+        this.GeneratePrimesMap(this.flip, this.inverse, this.rotate);
     }
 
     private void PrimesPictureBox_MouseMove(object sender, MouseEventArgs e)
     {
         if (this.primes != null && PrimesPictureBox.Image != null)
         {
-            var x = e.X;// + ((PrimesPictureBox.Image.Width - PrimesPictureBox.Width) >> 1);
-            var y = e.Y;// + ((PrimesPictureBox.Image.Height - PrimesPictureBox.Height) >> 1);
-
+            var x = e.X;
+            var y = e.Y;
             if (x >= 0 && x < PrimesPictureBox.Image.Width
                 && y >= 0 && y < PrimesPictureBox.Image.Height)
             {
@@ -396,7 +395,7 @@ public partial class FormMain : Form
                 long n = p.Item2;
                 bool b = p.Item3;
                 var t = Math.Atan2(dp.Y, dp.X) / Math.PI * 180.0;
-                this.InfoLabel.Text = $"{(b?'P':'C')}:{n} ({dp.X},{dp.Y},{t:N2}°)";
+                this.InfoLabel.Text = $"{(b ? 'P' : 'C')}:{n} ({dp.X},{dp.Y},{t:N2}°)";
             }
         }
     }
