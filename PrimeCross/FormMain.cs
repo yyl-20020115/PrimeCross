@@ -15,9 +15,9 @@ public partial class FormMain : Form
         {
             for (int x = 0; x < width; x++)
             {
-                int pixelValue = pixels[x, y];
-                pixelValue |= unchecked((int)0xff000000);
-                var c = Color.FromArgb(pixelValue);
+                int pixel = pixels[x, y];
+                pixel |= unchecked((int)0xff000000);
+                var c = Color.FromArgb(pixel);
                 bitmap.SetPixel(x, y, c);
             }
         }
@@ -56,10 +56,10 @@ public partial class FormMain : Form
         long count = 1 << r;
         int i, j, k, p, bsize;
 
-        var W = new Complex[count / 2];
+        var W = new Complex[count >> 1];
         var X1 = new Complex[count];
         var X2 = new Complex[count];
-        for (i = 0; i < count / 2; i++)
+        for (i = 0; i < W.Length; i++)
         {
             var angle = i * Math.PI * 2 / count;
             W[i] = new(Math.Cos(angle), -Math.Sin(angle));
@@ -75,11 +75,11 @@ public partial class FormMain : Form
                 for (i = 0; i < bsize / 2; i++)
                 {
                     p = j * bsize;
-                    X2[i + p] 
+                    X2[i + p]
                         = X1[i + p] + X1[i + p + bsize / 2]
                         ;
-                    X2[i + p + bsize / 2] 
-                        = (X1[i + p] - X1[i + p + bsize / 2]) 
+                    X2[i + p + bsize / 2]
+                        = (X1[i + p] - X1[i + p + bsize / 2])
                         * W[i * (1 << k)]
                         ;
                 }
@@ -281,7 +281,6 @@ public partial class FormMain : Form
                     || pt.Y < 0 || pt.Y >= length - 1)
                     continue;
                 var px = map[pt.X, pt.Y];
-
                 if (px.Item1 != Black)
                 {
                     var rp = RightOf(p, direction);
@@ -300,7 +299,7 @@ public partial class FormMain : Form
         var cp = new Point(size.Width >> 1, size.Height >> 1);
         if (!flip)
         {
-            return rotate ? new (p.Y, p.X) : p;
+            return rotate ? new(p.Y, p.X) : p;
         }
         else
         {
@@ -314,7 +313,7 @@ public partial class FormMain : Form
     {
         this.primes = BuildPrimesMap(
             this.length = Math.Max(
-                PrimesPictureBox.Width, 
+                PrimesPictureBox.Width,
                 PrimesPictureBox.Height)
             );
 
