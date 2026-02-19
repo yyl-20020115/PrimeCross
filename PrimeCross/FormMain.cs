@@ -5,17 +5,17 @@ namespace PrimeCross;
 
 public partial class FormMain : Form
 {
-    public static Bitmap GetBitmap(int[,] pixel)
+    public static Bitmap GetBitmap(int[,] pixels)
     {
-        var width = pixel.GetLength(0);
-        var height = pixel.GetLength(1);
+        var width = pixels.GetLength(0);
+        var height = pixels.GetLength(1);
         var bitmap = new Bitmap(width, height);
         using var g = Graphics.FromImage(bitmap);
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                int pixelValue = pixel[x, y];
+                int pixelValue = pixels[x, y];
                 pixelValue |= unchecked((int)0xff000000);
                 var c = Color.FromArgb(pixelValue);
                 bitmap.SetPixel(x, y, c);
@@ -23,7 +23,7 @@ public partial class FormMain : Form
         }
         return bitmap;
     }
-    public static int[,] GetPixelArray(Bitmap bitmap)
+    public static int[,] GetPixels(Bitmap bitmap)
     {
         int width = bitmap.Width;
         int height = bitmap.Height;
@@ -111,7 +111,7 @@ public partial class FormMain : Form
         long i, j;
         long n, m;
         double kt;
-        var data = GetPixelArray(bitmap);
+        var data = GetPixels(bitmap);
 
         while (lw * 2 <= width)
         {
@@ -300,7 +300,7 @@ public partial class FormMain : Form
         var cp = new Point(size.Width >> 1, size.Height >> 1);
         if (!flip)
         {
-            return rotate ? new Point(p.Y, p.X) : p;
+            return rotate ? new (p.Y, p.X) : p;
         }
         else
         {
