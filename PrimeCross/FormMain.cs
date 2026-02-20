@@ -53,7 +53,7 @@ public partial class FormMain : Form
     }
     public static void FFT(Complex[] t, Complex[] f, int r)
     {
-        long count = 1 << r;
+        long count = 1L << r;
         int i, j, k, p, bsize;
 
         var W = new Complex[count >> 1];
