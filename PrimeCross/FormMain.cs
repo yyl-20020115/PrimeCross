@@ -106,6 +106,8 @@ public partial class FormMain : Form
     {
         int width = bitmap.Width;
         int height = bitmap.Height;
+        if (width == 0 || height == 0)
+            return bitmap;
         long lw = 1;
         long lh = 1;
         int wp = 0;
@@ -115,16 +117,9 @@ public partial class FormMain : Form
         double kt;
         var data = GetPixels(bitmap);
 
-        while ((lw << 1) <= width)
-        {
-            lw <<= 1;
-            wp++;
-        }
-        while ((lh << 1) <= height)
-        {
-            lh <<= 1;
-            hp++;
-        }
+        lw = 1 << (wp = 31 - int.LeadingZeroCount(width));
+        lh = 1 << (hp = 31 - int.LeadingZeroCount(height));
+
         var t = new Complex[lw * lh];
         var f = new Complex[lw * lh];
         var tw = new Complex[lw];
