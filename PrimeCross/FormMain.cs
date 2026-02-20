@@ -115,7 +115,7 @@ public partial class FormMain : Form
         long i, j;
         long n, m;
         double kt;
-        var data = GetPixels(bitmap);        
+        var data = GetPixels(bitmap);
         const int _31 = (sizeof(int) << 3) - 1;
         lw = 1 << (wp = _31 - int.LeadingZeroCount(width));
         lh = 1 << (hp = _31 - int.LeadingZeroCount(height));
@@ -378,9 +378,9 @@ public partial class FormMain : Form
             if (x >= 0 && x < PrimesPictureBox.Image.Width
                 && y >= 0 && y < PrimesPictureBox.Image.Height)
             {
-                var cp = new PointF(PrimesPictureBox.Image.Width >> 1, PrimesPictureBox.Image.Height >> 1);
-                var dp = new PointF(x - cp.X, cp.Y - y);
-                var mp = new PointF(dp.X + (this.length >> 1) - 1, dp.Y + (this.length >> 1) - 1);
+                var cp = new Point(PrimesPictureBox.Image.Width >> 1, PrimesPictureBox.Image.Height >> 1);
+                var dp = new Point(x - cp.X, cp.Y - y);
+                var mp = new Point(dp.X + (this.length >> 1), dp.Y + (this.length >> 1) - 1);
                 if (mp.X > this.length - 1)
                     mp.X = this.length - 1;
                 if (mp.Y > this.length - 1)
