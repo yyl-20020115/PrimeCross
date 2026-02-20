@@ -115,11 +115,10 @@ public partial class FormMain : Form
         long i, j;
         long n, m;
         double kt;
-        var data = GetPixels(bitmap);
-
-        lw = 1 << (wp = 31 - int.LeadingZeroCount(width));
-        lh = 1 << (hp = 31 - int.LeadingZeroCount(height));
-
+        var data = GetPixels(bitmap);        
+        const int _31 = (sizeof(int) << 3) - 1;
+        lw = 1 << (wp = _31 - int.LeadingZeroCount(width));
+        lh = 1 << (hp = _31 - int.LeadingZeroCount(height));
         var t = new Complex[lw * lh];
         var f = new Complex[lw * lh];
         var tw = new Complex[lw];
