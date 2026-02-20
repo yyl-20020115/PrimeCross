@@ -15,10 +15,8 @@ public partial class FormMain : Form
         {
             for (int x = 0; x < width; x++)
             {
-                int pixel = pixels[x, y];
-                pixel |= unchecked((int)0xff000000);
-                var c = Color.FromArgb(pixel);
-                bitmap.SetPixel(x, y, c);
+                bitmap.SetPixel(x, y, Color.FromArgb(
+                    pixels[x, y] | unchecked((int)0xff000000)));
             }
         }
         return bitmap;
@@ -29,21 +27,25 @@ public partial class FormMain : Form
         int height = bitmap.Height;
         var pixels = new int[width, height];
         var rect = new Rectangle(0, 0, width, height);
-        var data = bitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
 
+        var data = bitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
         int bytesPerPixel = Image.GetPixelFormatSize(bitmap.PixelFormat) / 8;
         int bytes = Math.Abs(data.Stride) * height;
         var rgbValues = new byte[bytes];
 
         System.Runtime.InteropServices.Marshal.Copy(data.Scan0, rgbValues, 0, bytes);
 
-        for (int y = 0; y < height; y++)
+        for (var y = 0; y < height; y++)
         {
-            for (int x = 0; x < width; x++)
+            for (var x = 0; x < width; x++)
             {
-                int i = y * data.Stride + x * bytesPerPixel;
-                var v = rgbValues[i] | (rgbValues[i + 1] << 8) | (rgbValues[i + 2] << 16) | (rgbValues[i + 3] << 24);
-                pixels[x, y] = v;
+                var i = y * data.Stride + x * bytesPerPixel;
+                pixels[x, y]
+                    = (rgbValues[i + 1] << 0)
+                    | (rgbValues[i + 1] << 8)
+                    | (rgbValues[i + 2] << 16)
+                    | (rgbValues[i + 3] << 24)
+                    ;
             }
         }
 
@@ -56,12 +58,12 @@ public partial class FormMain : Form
         long count = 1L << r;
         int i, j, k, p, bsize;
 
-        var W = new Complex[count >> 1];
+        var W = new Complex[1L << (r - 1)];
         var X1 = new Complex[count];
         var X2 = new Complex[count];
         for (i = 0; i < W.Length; i++)
         {
-            var angle = i * Math.PI * 2 / count;
+            var angle = i * Math.PI * 2.0 / count;
             W[i] = new(Math.Cos(angle), -Math.Sin(angle));
         }
 
@@ -72,14 +74,14 @@ public partial class FormMain : Form
             for (j = 0; j < 1 << k; j++)
             {
                 bsize = 1 << (r - k);
-                for (i = 0; i < bsize / 2; i++)
+                for (i = 0; i < (bsize >> 1); i++)
                 {
                     p = j * bsize;
                     X2[i + p]
-                        = X1[i + p] + X1[i + p + bsize / 2]
+                        = X1[i + p] + X1[i + p + (bsize >> 1)]
                         ;
-                    X2[i + p + bsize / 2]
-                        = (X1[i + p] - X1[i + p + bsize / 2])
+                    X2[i + p + (bsize >> 1)]
+                        = (X1[i + p] - X1[i + p + (bsize >> 1)])
                         * W[i * (1 << k)]
                         ;
                 }
@@ -113,14 +115,14 @@ public partial class FormMain : Form
         double kt;
         var data = GetPixels(bitmap);
 
-        while (lw * 2 <= width)
+        while ((lw << 1) <= width)
         {
-            lw *= 2;
+            lw <<= 1;
             wp++;
         }
-        while (lh * 2 <= height)
+        while ((lh << 1) <= height)
         {
-            lh *= 2;
+            lh <<= 1;
             hp++;
         }
         var t = new Complex[lw * lh];
@@ -169,8 +171,8 @@ public partial class FormMain : Form
             {
                 var val = f[j * lh + i].Magnitude;
                 kt = (val / max) * 255.0;
-                n = (height - lh) / 2 + (i < lh / 2 ? i + lh / 2 : i - lh / 2);
-                m = (width - lw) / 2 + (j < lw / 2 ? j + lw / 2 : j - lw / 2);
+                n = ((height - lh) >> 1) + (i < (lh >> 1) ? i + (lh >> 1) : i - (lh >> 1));
+                m = ((width - lw) >> 1) + (j < (lw >> 1) ? j + (lw >> 1) : j - (lw >> 1));
                 data[m, n] = Color.FromArgb(
                     (byte)kt,
                     (byte)kt,
