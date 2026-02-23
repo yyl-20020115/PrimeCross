@@ -23,28 +23,28 @@ public partial class FormMain : Form
     }
     public static int[,] GetPixels(Bitmap bitmap)
     {
-        int width = bitmap.Width;
-        int height = bitmap.Height;
+        var width = bitmap.Width;
+        var height = bitmap.Height;
         var pixels = new int[width, height];
         var rect = new Rectangle(0, 0, width, height);
 
         var data = bitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
-        int bytesPerPixel = Image.GetPixelFormatSize(bitmap.PixelFormat) / 8;
-        int bytes = Math.Abs(data.Stride) * height;
-        var rgbValues = new byte[bytes];
+        var bpp = Image.GetPixelFormatSize(bitmap.PixelFormat) >> 3;
+        var bytes = Math.Abs(data.Stride) * height;
+        var buffer = new byte[bytes];
 
-        System.Runtime.InteropServices.Marshal.Copy(data.Scan0, rgbValues, 0, bytes);
+        System.Runtime.InteropServices.Marshal.Copy(data.Scan0, buffer, 0, bytes);
 
         for (var y = 0; y < height; y++)
         {
             for (var x = 0; x < width; x++)
             {
-                var i = y * data.Stride + x * bytesPerPixel;
+                var i = y * data.Stride + x * bpp;
                 pixels[x, y]
-                    = (rgbValues[i + 1] << 0)
-                    | (rgbValues[i + 1] << 8)
-                    | (rgbValues[i + 2] << 16)
-                    | (rgbValues[i + 3] << 24)
+                    = (buffer[i + 0] << 00)
+                    | (buffer[i + 1] << 08)
+                    | (buffer[i + 2] << 16)
+                    | (buffer[i + 3] << 24)
                     ;
             }
         }
@@ -55,7 +55,7 @@ public partial class FormMain : Form
     }
     public static void FFT(Complex[] t, Complex[] f, int r)
     {
-        long count = 1L << r;
+        var count = 1L << r;
         int i, j, k, p, bsize;
 
         var W = new Complex[1L << (r - 1)];
@@ -102,23 +102,22 @@ public partial class FormMain : Form
             f[j] = X1[p];
         }
     }
-    public static Bitmap Fourier(Bitmap bitmap)
+    const int _31 = (sizeof(int) << 3) - 1;
+    public static Bitmap? Fourier(Bitmap bitmap)
     {
-        int width = bitmap.Width;
-        int height = bitmap.Height;
+        var width = bitmap.Width;
+        var height = bitmap.Height;
         if (width == 0 || height == 0)
-            return bitmap;
-        long lw = 1;
-        long lh = 1;
-        int wp = 0;
-        int hp = 0;
+            return bitmap.Clone() as Bitmap;
+        var lw = 1L;
+        var lh = 1L;
+        var wp = 0;
+        var hp = 0;
         long i, j;
         long n, m;
-        double kt;
         var data = GetPixels(bitmap);
-        const int _31 = (sizeof(int) << 3) - 1;
-        lw = 1 << (wp = _31 - int.LeadingZeroCount(width));
-        lh = 1 << (hp = _31 - int.LeadingZeroCount(height));
+        lw = 1L << (wp = _31 - int.LeadingZeroCount(width));
+        lh = 1L << (hp = _31 - int.LeadingZeroCount(height));
         var t = new Complex[lw * lh];
         var f = new Complex[lw * lh];
         var tw = new Complex[lw];
@@ -156,21 +155,19 @@ public partial class FormMain : Form
             oh.CopyTo(f, i * lh);
         }
 
-
         var max = f.Max(c => (c.Magnitude));
-
         for (i = 0; i < lh; i++)
         {
             for (j = 0; j < lw; j++)
             {
                 var val = f[j * lh + i].Magnitude;
-                kt = (val / max) * 255.0;
+                var kt = (byte)((val / max) * 255.0);
                 n = ((height - lh) >> 1) + (i < (lh >> 1) ? i + (lh >> 1) : i - (lh >> 1));
                 m = ((width - lw) >> 1) + (j < (lw >> 1) ? j + (lw >> 1) : j - (lw >> 1));
                 data[m, n] = Color.FromArgb(
-                    (byte)kt,
-                    (byte)kt,
-                    (byte)kt)
+                    kt,
+                    kt,
+                    kt)
                     .ToArgb();
             }
         }
@@ -190,8 +187,8 @@ public partial class FormMain : Form
     }
 
     private static Direction Turn(Direction d, bool left = true) => left
-            ? (Direction)(((int)d + 1) % 4)
-            : (d == Direction.Down) ? Direction.Left : ((Direction)((int)d) - 1)
+        ? (Direction)(((int)d + 1) % 4)
+        : (d == Direction.Down) ? Direction.Left : d - 1
         ;
     private static Point LeftOf(Point p, Direction d) => d switch
     {
@@ -226,11 +223,15 @@ public partial class FormMain : Form
                 return false;
             case 2:
                 return true;
+            default:
+                if (n % 2 == 0) 
+                    return false;
+                var sqrt = (long)(Math.Sqrt(n) + 0.5);
+                for (var i = 3L; i <= sqrt; i += 2)
+                    if (n % i == 0) 
+                        return false;
+                return true;
         }
-        if (n % 2 == 0) return false;
-        for (long i = 3; i <= Math.Sqrt(n); i += 2)
-            if (n % i == 0) return false;
-        return true;
     }
     const int Black = 0x000000;
     const int White = 0xffffff;
@@ -245,7 +246,7 @@ public partial class FormMain : Form
         var map = new (int, long, bool)[length, length];
         var center = new Point(length >> 1, length >> 1);
         var direction = Direction.Up;
-        long n = 0;
+        var n = 0L;
         map[center.X, center.Y] = (White, n++, false);
         var p = new Point(center.X + 1, center.Y + 1);
         map[p.X, p.Y] = (Red, n++, false);
@@ -260,13 +261,12 @@ public partial class FormMain : Form
                 break;
             var b = IsPrime(n);
             map[p.X, p.Y] = (b ? White : Red, n, b);
-
             var l = LeftOf(p, direction);
             if (l.X < 0 || l.X >= length - 1
                 || l.Y < 0 || l.Y >= length - 1)
                 break;
-            var lc = map[l.X, l.Y];
-            if (lc.Item1 == Black)
+            (int color, _, _) = map[l.X, l.Y];
+            if (color == Black)
             {
                 direction = Turn(direction);
             }
@@ -276,8 +276,8 @@ public partial class FormMain : Form
                 if (pt.X < 0 || pt.X >= length - 1
                     || pt.Y < 0 || pt.Y >= length - 1)
                     continue;
-                var px = map[pt.X, pt.Y];
-                if (px.Item1 != Black)
+                (int color, long, bool) px = map[pt.X, pt.Y];
+                if (px.color != Black)
                 {
                     var rp = RightOf(p, direction);
                     if (rp.X < 0 || rp.X >= length - 1
@@ -299,7 +299,8 @@ public partial class FormMain : Form
         }
         else
         {
-            int x = p.X, y = p.Y;
+            var x = p.X;
+            var y = p.Y;
             x = x < cp.X ? cp.X - x : size.Width + (cp.X - x) - 1;
             y = y < cp.Y ? cp.Y - y : size.Height + (cp.Y - y) - 1;
             return rotate ? new(y, x) : new(x, y);
@@ -321,10 +322,10 @@ public partial class FormMain : Form
             {
                 var px = x + ((this.length - PrimesPictureBox.Width) >> 1);
                 var py = y + ((this.length - PrimesPictureBox.Height) >> 1);
-                var c = this.primes[px, py];
+                (_, _, var isprime) = this.primes[px, py];
                 var fp = FlipProject(size, new Point(x, y), flip, rotate);
                 bitmap.SetPixel(fp.X, fp.Y,
-                    ((!inverse) ? c.Item3 : !c.Item3) ? Color.White : Color.Black);
+                    ((!inverse) ? isprime : !isprime) ? Color.White : Color.Black);
             }
         }
 
@@ -375,8 +376,7 @@ public partial class FormMain : Form
         {
             var x = e.X;
             var y = e.Y;
-            if (x >= 0 && x < PrimesPictureBox.Image.Width
-                && y >= 0 && y < PrimesPictureBox.Image.Height)
+            if (x >= 0 && x < PrimesPictureBox.Image.Width && y >= 0 && y < PrimesPictureBox.Image.Height)
             {
                 var cp = new Point(PrimesPictureBox.Image.Width >> 1, PrimesPictureBox.Image.Height >> 1);
                 var dp = new Point(x - cp.X, cp.Y - y);
@@ -389,12 +389,9 @@ public partial class FormMain : Form
                     mp.X = 0;
                 if (mp.Y < 0)
                     mp.Y = 0;
-
-                var p = this.primes![(int)mp.X, (int)mp.Y];
-                long n = p.Item2;
-                bool b = p.Item3;
+                (_, var n, var isprime) = this.primes[mp.X, mp.Y];
                 var t = Math.Atan2(dp.Y, dp.X) / Math.PI * 180.0;
-                this.InfoLabel.Text = $"{(b ? 'P' : 'C')}:{n} ({dp.X},{dp.Y},{t:N2}°)";
+                this.InfoLabel.Text = $"{(isprime ? 'P' : 'C')}:{n} ({dp.X},{dp.Y},{t:N2}°)";
             }
         }
     }
