@@ -51,11 +51,11 @@
             // GenerateButton
             // 
             GenerateButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            GenerateButton.Location = new Point(554, 742);
+            GenerateButton.Location = new Point(593, 738);
             GenerateButton.Name = "GenerateButton";
-            GenerateButton.Size = new Size(96, 34);
+            GenerateButton.Size = new Size(61, 34);
             GenerateButton.TabIndex = 1;
-            GenerateButton.Text = "&Generate";
+            GenerateButton.Text = "FF&T";
             GenerateButton.UseVisualStyleBackColor = true;
             GenerateButton.Click += GenerateButton_Click;
             // 
@@ -71,7 +71,7 @@
             // ResetButton
             // 
             ResetButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            ResetButton.Location = new Point(653, 742);
+            ResetButton.Location = new Point(656, 738);
             ResetButton.Name = "ResetButton";
             ResetButton.Size = new Size(76, 34);
             ResetButton.TabIndex = 0;
@@ -82,9 +82,9 @@
             // FlipButton
             // 
             FlipButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            FlipButton.Location = new Point(475, 742);
+            FlipButton.Location = new Point(530, 738);
             FlipButton.Name = "FlipButton";
-            FlipButton.Size = new Size(76, 34);
+            FlipButton.Size = new Size(61, 34);
             FlipButton.TabIndex = 2;
             FlipButton.Text = "&Flip";
             FlipButton.UseVisualStyleBackColor = true;
@@ -93,7 +93,7 @@
             // InverseButton
             // 
             InverseButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            InverseButton.Location = new Point(301, 742);
+            InverseButton.Location = new Point(358, 738);
             InverseButton.Name = "InverseButton";
             InverseButton.Size = new Size(84, 34);
             InverseButton.TabIndex = 4;
@@ -104,7 +104,7 @@
             // RotateButton
             // 
             RotateButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            RotateButton.Location = new Point(388, 742);
+            RotateButton.Location = new Point(444, 738);
             RotateButton.Name = "RotateButton";
             RotateButton.Size = new Size(84, 34);
             RotateButton.TabIndex = 3;
