@@ -350,6 +350,9 @@ public partial class FormMain : Form
     }
     private void GenerateButton_Click(object sender, EventArgs e)
     {
+        //using var stream = new FileStream("spiral.png", FileMode.Open, FileAccess.Read);
+        //using var bitmapx = Bitmap.FromStream(stream);
+        //this.PrimesPictureBox.Image = bitmapx;
         if (this.PrimesPictureBox.Image is Bitmap bitmap
             && bitmap.Clone() is Bitmap clone)
         {
